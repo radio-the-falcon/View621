@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="E6Viewer.Views.AboutView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="28,24,28,32">
+        <StackPanel Spacing="24" MaxWidth="850" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="About Umamiff" />
+
+            <!-- Brand Card -->
+            <Border
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                Padding="24">
+                <StackPanel Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
+                    <Image
+                        Source="Assets/Square44x44Logo.targetsize-48.png"
+                        Width="56"
+                        Height="56"
+                        VerticalAlignment="Center" />
+                    <StackPanel VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Umamiff" FontWeight="Bold" FontSize="24" />
+                        <TextBlock Text="Umamiff: An e621.net viewer" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- User Manual Section -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="How to Use Umamiff" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                <!-- Multi-Tab Navigation -->
+                <Border
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Padding="18">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE737;" FontSize="15" Foreground="{ThemeResource SystemAccentColor}" />
+                            <TextBlock Text="Browsing &amp; Multi-Tab Navigation" FontWeight="SemiBold" FontSize="15" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13">
+                            • Click the <Bold>+</Bold> button on the tab bar to open a clean, independent search tab.&#x0a;
+                            • Close tabs at any time using the close button on each tab or middle-clicking the tab header.&#x0a;
+                            • Each search tab operates with its own distinct search memory and query state.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Search & Filters -->
+                <Border
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Padding="18">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE721;" FontSize="15" Foreground="{ThemeResource SystemAccentColor}" />
+                            <TextBlock Text="Searching &amp; Filtering" FontWeight="SemiBold" FontSize="15" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13">
+                            • Type tags in the search bar (e.g. <Italic>canine scenery</Italic>) to see real-time autocomplete suggestions.&#x0a;
+                            • Click the blue <Bold>Search</Bold> button or press <Bold>Enter</Bold> to query e621.net.&#x0a;
+                            • Use the <Bold>Rating</Bold> filter in the sidebar to view <Bold>Safe</Bold> (safe only), <Bold>Questionable</Bold> (safe &amp; questionable, hiding explicit), or <Bold>Explicit</Bold> (all ratings).&#x0a;
+                            • Use the <Bold>Show gender</Bold> filter to isolate Male, Female, or All.&#x0a;
+                            • Access your recent searches from the resizable <Bold>Previous searches</Bold> list in the sidebar. Drag the top bar to adjust height.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Post View & Inspection -->
+                <Border
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Padding="18">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xEB9F;" FontSize="15" Foreground="{ThemeResource SystemAccentColor}" />
+                            <TextBlock Text="Post View &amp; Media Inspection" FontWeight="SemiBold" FontSize="15" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13">
+                            • Click any thumbnail in search results to open its detailed post view.&#x0a;
+                            • Navigate between posts instantly using the <Bold>Prev</Bold> / <Bold>Next</Bold> buttons or the <Bold>Left</Bold> and <Bold>Right</Bold> keyboard arrow keys.&#x0a;
+                            • Click <Bold>Switch to full view</Bold> (blue button) to view the uncompressed original resolution, or switch back to sample view.&#x0a;
+                            • Click <Bold>Download</Bold> to choose where to save the full original image or video file on your computer.&#x0a;
+                            • Zoom and pan with mouse drag and scroll wheel, or toggle <Bold>Fit to view</Bold> / <Bold>Actual size</Bold>.&#x0a;
+                            • Drag the splitter bar between the image viewport and the metadata sidebar to resize the info panel.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Right-Click Options Reference -->
+                <Border
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Padding="18">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B9;" FontSize="15" Foreground="{ThemeResource SystemAccentColor}" />
+                            <TextBlock Text="Right-Click Quick Reference" FontWeight="SemiBold" FontSize="15" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13">
+                            • <Bold>Search Results Card</Bold>:&#x0a;
+                            &#x20; - <Bold>Open in new tab</Bold>: Opens the post in a new tab without leaving the current search.&#x0a;&#x0a;
+                            • <Bold>Post View Tag Chips (Artist, Character, Species, General)</Bold>:&#x0a;
+                            &#x20; - <Bold>Left Click</Bold>: Searches that tag in a new tab.&#x0a;
+                            &#x20; - <Bold>Right Click → Open</Bold>: Searches that tag in the current tab.&#x0a;
+                            &#x20; - <Bold>Right Click → Open in new tab</Bold>: Opens a dedicated search tab for that tag.&#x0a;&#x0a;
+                            • <Bold>Image Viewport</Bold>:&#x0a;
+                            &#x20; - <Bold>Copy image</Bold>: Copies image data to clipboard.&#x0a;
+                            &#x20; - <Bold>Copy URL</Bold>: Copies direct media file link to clipboard.&#x0a;&#x0a;
+                            • <Bold>Parent &amp; Pool Links</Bold>:&#x0a;
+                            &#x20; - <Bold>Middle Click</Bold>: Opens the parent post or pool in a new background tab.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
