@@ -9,7 +9,7 @@
 
     <ScrollViewer Padding="28,24,28,32">
         <StackPanel Spacing="24" MaxWidth="850" HorizontalAlignment="Left">
-            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="About View621" />
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="About Umamiff" />
 
             <!-- Brand Card -->
             <Border
@@ -25,15 +25,15 @@
                         Height="56"
                         VerticalAlignment="Center" />
                     <StackPanel VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Text="View621" FontWeight="Bold" FontSize="24" />
-                        <TextBlock Text="View621: An e621.net viewer" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="Umamiff" FontWeight="Bold" FontSize="24" />
+                        <TextBlock Text="Umamiff: An e621.net viewer" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- User Manual Section -->
             <StackPanel Spacing="16">
-                <TextBlock Text="How to Use View621" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="How to Use Umamiff" Style="{StaticResource SubtitleTextBlockStyle}" />
 
                 <!-- Multi-Tab Navigation -->
                 <Border

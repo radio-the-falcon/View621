@@ -1,7 +1,9 @@
+#if HAS_UNO_SKIA
 using System;
 using Uno.UI.Hosting;
+using Microsoft.Extensions.Hosting;
 
-namespace E6Viewer.Desktop;
+namespace E6Viewer;
 
 public static class Program
 {
@@ -19,3 +21,4 @@ public static class Program
         host.Run();
     }
 }
+#endif

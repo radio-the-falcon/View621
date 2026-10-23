@@ -1,6 +1,6 @@
 # View621
 
-**View621** is a modern, cross-platform desktop client designed for browsing, searching, and viewing content from **e621** and **e926**. Built with **Uno Platform**, **WinUI 3**, and **.NET 10**, it provides a consistent, responsive user experience across **Windows 10 & 11**, **Linux (Desktop Skia)**, and **macOS (Mac Catalyst)**. Features include multi-tab browsing, interactive panning and zooming, media streaming, local offline caching, and bookmarks management.
+**View621** is a native, unpackaged Windows 10 & 11 desktop client designed for browsing, searching, and viewing content from **e621** and **e926**. Built with **WinUI 3** and **.NET 10**, it provides a fluent, modern user experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, native media streaming, local offline caching, and bookmarks management.
 
 ---
 
@@ -14,11 +14,11 @@
 
 ### 🔍 Search & Tag Autocompletion
 - **Keyboard-Friendly Tag Autocomplete**:
-  - Dynamic suggestion popups appear as you type tags in the search bar, complete with post counts.
-  - Navigate suggestions smoothly using `Up` and `Down` arrow keys without prematurely overwriting query text.
+  - As you type tags in the search bar, suggestion popups appear dynamically with post counts.
+  - Navigate suggestions smoothly using `Up` and `Down` arrow keys without prematurely overwriting your query text.
   - Press `Enter` to commit the selected suggestion, or `Escape` to dismiss the autocomplete dropdown.
-  - Space-delimited multi-tag queries.
-- **Search History & Saved Searches**: Dedicated views for recent search queries and pinned searches with one-click reload.
+  - Multi-tag queries separated by space delimiters.
+- **Search History**: Sidebar dropdown displays recent queries with one-click reload and history clearing.
 - **Integrated Sorting**: Built-in dropdown menu with clear direction indicators:
   - Default (Newest ID first) / Oldest ID first
   - Date created (Newest first) / Date created (Oldest first)
@@ -31,7 +31,7 @@
   - **Rating filter**: Restrict content across searches (`General`, `Sensitive`, `Questionable`, `Explicit`).
 - **Responsive Thumbnail Grid**:
   - Dynamic `UniformGridLayout` with `ItemsStretch="Fill"` evenly distributes cards across window sizes.
-  - Thumbnail badges indicate format (`Video`, `GIF`, `Image`), parent/child relationships, and pool memberships.
+  - Thumbnail badges indicate format (`Video`, `GIF`, `Image`), parent/child variations, and comic series/pool memberships.
 
 ### 🖼️ Media Viewing, Playback & Offline Cache
 - **Interactive Image Viewport**:
@@ -40,7 +40,7 @@
   - Responsive sample view automatically resizing to fit the window during resize events.
   - Floating **Fit to view** / **Actual size** toggle for full-resolution view.
 - **Native Video & GIF Playback**:
-  - `MediaPlayerElement` playback for `webm` and `mp4` videos with custom transport controls docked at the bottom of the viewing pane.
+  - Native `MediaPlayerElement` playback for `webm` and `mp4` videos with custom transport controls docked at the bottom of the viewing pane.
   - Continuous background streaming and caching to disk while playing or paused.
   - Animated GIF rendering using `BitmapImage` with viewport-constrained sizing that maintains active frame loops.
   - Seamless tab switching: Pauses playback on switch, maintains playback position and buffer state, and restores responsive transport controls on return.
@@ -56,72 +56,60 @@
 - **Dedicated Bookmarks View**: Access all bookmarked items directly from the sidebar navigation pane.
 
 ### ⚙️ Persistent Configuration & Data Storage
-All application data is cleanly isolated in `~/.view621` (`C:\Users\<User>\.view621` on Windows, `~/.view621` on Linux/macOS):
-- `settings.json`: Theme, materials, opacity, and interface configuration.
+All application data is cleanly isolated in `~/.View621` (`C:\Users\<User>\.View621`):
+- `settings.json`: Theme, materials, opacity, credentials, and API configuration.
 - `bookmarks.json`: Saved post bookmarks.
 - `search_history.json`: Recent search queries.
-- `saved_searches.json`: Pinned and favourite search queries.
 - `cache/images/`: Local disk cache of viewed sample media and videos.
 - `cache/posts.json`: Cached post metadata index.
 - `app.log`: Diagnostics and error logs.
 
-**Direct Folder Access**: The Settings page includes a dedicated **Open folder** button under **Data & Storage** to instantly open `~/.view621` in your operating system's native file manager (`explorer`, `xdg-open`, or `open`).
+**Direct Folder Access**: The Settings page includes a dedicated **Open folder** button under **Data & Storage** to instantly launch `~/.View621` in Windows File Explorer.
 
 ---
 
 ## Technical Stack & Architecture
 
-- **UI Framework**: [Uno Platform](https://platform.uno/) with WinUI 3 (Windows App SDK on Windows, Skia Desktop on Linux, and Mac Catalyst on macOS)
-- **Runtime**: .NET 10
-  - Windows: `net10.0-windows10.0.26100.0` (x64, ARM64)
-  - Linux & macOS: `net10.0-desktop` (Skia Desktop for Linux x64 and macOS ARM64 / x64)
+- **Framework**: Windows App SDK (WinUI 3)
+- **Runtime**: .NET 10 (`net10.0-windows10.0.26100.0`)
+- **Package Style**: Unpackaged application (`<WindowsPackageType>None</WindowsPackageType>`)
+- **Single-File Architecture**: Self-contained with embedded MSIX tooling and resource indexation (`<EnableMsixTooling>true</EnableMsixTooling>`)
+- **Styling**: Windows 11 Fluent Design System with Mica and Desktop Acrylic backdrops
 - **Architectural Pattern**: MVVM using CommunityToolkit MVVM (`ObservableObject`, `RelayCommand`, service abstractions)
-- **Styling**: Windows 11 Fluent Design System with Mica/Acrylic backdrops on Windows, and Uno Cupertino Apple-inspired design styling
-- **API Client**: Anonymous e621 / e926 REST API integration with automated pagination and search suggestion debouncing
 
 ---
 
 ## Building and Running
 
 ### Prerequisites
-- **.NET 10 SDK** (or later)
+1. **Windows 10 (version 1809+) or Windows 11**
+2. **.NET 10 SDK** (or later)
 
-### Windows (Debug)
+### Development (Debug)
 From PowerShell in the repository root:
 
 ```powershell
-# Build for Windows App SDK
-dotnet build E6Viewer.csproj -f net10.0-windows10.0.26100.0
+# Build the project
+dotnet build -c Debug
 
 # Run the application
-dotnet run --project E6Viewer.csproj -f net10.0-windows10.0.26100.0
+dotnet run --no-build -c Debug
 ```
 
-### Self-Contained Release Builds
+### Self-Contained Single-File Release
+To generate a standalone `.exe` that runs anywhere without requiring external dependencies, pre-installed runtimes, or neighbouring DLLs:
 
-#### Windows (x64 and ARM64)
 ```powershell
-# Windows x64 (generates View621_x64.exe)
-dotnet publish E6Viewer.csproj -c Release -r win-x64 -f net10.0-windows10.0.26100.0 --self-contained -o ./artifacts/windows-x64
+# For x64 / x86 (generates View621_x86.exe)
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
-# Windows ARM64 (generates View621_arm.exe)
-dotnet publish E6Viewer.csproj -c Release -r win-arm64 -f net10.0-windows10.0.26100.0 --self-contained -o ./artifacts/windows-ARM64
+# For ARM64 (generates View621_arm.exe)
+dotnet publish -c Release -r win-arm64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 ```
 
-#### Linux (Desktop Skia x64)
-```bash
-# Build and publish Linux self-contained executable
-dotnet publish E6Viewer.csproj -c Release -r linux-x64 -f net10.0-desktop --self-contained -o ./artifacts/linux-x64
-```
-
-#### macOS (Desktop Skia ARM64 & x64)
-```bash
-# Build and publish macOS Apple Silicon (ARM64)
-dotnet publish E6Viewer.csproj -c Release -r osx-arm64 -f net10.0-desktop --self-contained -o ./artifacts/macos-arm64
-
-# Build and publish macOS Intel (x64)
-dotnet publish E6Viewer.csproj -c Release -r osx-x64 -f net10.0-desktop --self-contained -o ./artifacts/macos-x64
-```
+Output binaries:
+- `bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\View621_x86.exe`
+- `bin\Release\net10.0-windows10.0.26100.0\win-arm64\publish\View621_arm.exe`
 
 ---
 
@@ -130,43 +118,31 @@ dotnet publish E6Viewer.csproj -c Release -r osx-x64 -f net10.0-desktop --self-c
 ```
 e6_viewer/
 ├── Assets/                      # Icons, logos, and splash screen graphics
-├── Helpers/
-│   ├── CrossPlatformLauncher.cs # Shell launcher abstraction (explorer, xdg-open, open)
-│   └── WindowChromeHelper.cs    # Windows 11 title bar and backdrop styling
 ├── Models/
 │   ├── E621Dto.cs               # Strongly-typed JSON DTOs for e621/e926 API responses
 │   ├── ImagePost.cs             # Post domain model with computed bindings and format detection
-│   ├── PostNavigationContext.cs # Carries sequential navigation state across tabs
-│   └── SavedSearchEntry.cs      # Pinned search query model
-├── Platforms/
-│   └── Desktop/
-│       └── Program.cs           # Skia Desktop entry point (Linux / macOS / X11)
+│   └── PostNavigationContext.cs # Carries sequential navigation state across tabs
+├── Pages/
+│   ├── SearchPage.xaml(.cs)     # Main post grid, tag bar, sort selector, and filter chips
+│   ├── ImageDetailPage.xaml(.cs)# Pan/zoom viewer, video playback, tag chips, and metadata sidebar
+│   ├── BookmarksPage.xaml(.cs)  # Saved bookmark management and offline viewer
+│   ├── SettingsPage.xaml(.cs)   # Theme, backdrop, API credentials, and data location launcher
+│   └── AboutPage.xaml           # Application information and build details
 ├── Services/
-│   ├── AppSettings.cs           # Settings persistence manager (~/.view621/settings.json)
+│   ├── AppSettings.cs           # Settings persistence manager (~/.View621/settings.json)
 │   ├── BookmarkService.cs       # Bookmark storage and cached post catalogue manager
 │   ├── E621ApiClient.cs         # Async REST client for search and autocompletion
-│   ├── ImageCacheService.cs     # Disk caching for post previews and media
-│   ├── PostCacheService.cs      # Metadata caching for browsed posts
-│   ├── SavedSearchesService.cs  # Pinned query storage
-│   ├── SearchHistoryService.cs  # Query history management
-│   ├── StorageLocations.cs      # Centralised paths, directory helpers, and migration (~/.view621)
+│   ├── IImageService.cs         # Service contract for API interactions
+│   ├── ITabService.cs           # Multi-tab broker contract
+│   ├── StorageLocations.cs      # Centralised paths, directory helpers, and logging (~/.View621)
 │   ├── TabService.cs            # Coordinates tabs and navigation across views
 │   └── ThemeService.cs          # Theme and window backdrop helper
 ├── ViewModels/
 │   └── SearchViewModel.cs       # Search view model managing queries, pagination, and tags
-├── Views/
-│   ├── AboutView.xaml(.cs)      # Application information, license, and brand cards
-│   ├── PinView.xaml(.cs)        # Pinned search quick navigation view
-│   ├── PostView.xaml(.cs)       # Pan/zoom viewer, video playback, tag chips, and details sidebar
-│   ├── SavedSearchesView.xaml(.cs)# Saved and favourite search manager
-│   ├── SearchView.xaml(.cs)     # Main post thumbnail grid, tag bar, and filter chips
-│   └── SettingsView.xaml(.cs)   # Theme, backdrop, cache management, and storage launcher
 ├── MainWindow.xaml(.cs)         # Root window hosting TitleBar, TabView, and navigation pane
-├── App.xaml(.cs)                # Application entry point, first-run initialisation, and exception handlers
-├── Directory.Build.props        # Global cross-platform build properties
-├── global.json                  # Uno.Sdk version pinning
+├── App.xaml(.cs)                # Application entry point, first-run initialization, and exception handlers
 ├── app.manifest                 # Windows application manifest (DPI awareness, OS compatibility)
-└── E6Viewer.csproj              # Cross-platform multi-targeting project configuration
+└── E6Viewer.csproj              # Project and single-file build configuration
 ```
 
 ---

@@ -170,10 +170,7 @@
             </StackPanel>
 
             <!-- Image Grid using ItemsView with UniformGridLayout for even distribution -->
-            <ScrollViewer
-                HorizontalScrollBarVisibility="Disabled"
-                VerticalScrollBarVisibility="Auto">
-                <ItemsView
+            <ItemsView
                     x:Name="ImagesItemsView"
                     ItemsSource="{x:Bind ViewModel.Posts, Mode=OneWay}"
                     ItemInvoked="ImagesItemsView_ItemInvoked"
@@ -424,7 +421,6 @@
                         </DataTemplate>
                     </ItemsView.ItemTemplate>
                 </ItemsView>
-            </ScrollViewer>
         </Grid>
 
         <!-- Pagination Bar at Bottom -->

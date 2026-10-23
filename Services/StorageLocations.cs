@@ -4,7 +4,7 @@ using System.IO;
 namespace E6Viewer.Services;
 
 /// <summary>
-/// Centralised paths and directory helpers for View621 data storage in ~/.view621.
+/// Centralised paths and directory helpers for Umamiff data storage in ~/.umamiff.
 /// </summary>
 public static class StorageLocations
 {
@@ -26,52 +26,47 @@ public static class StorageLocations
     }
 
     /// <summary>
-    /// Root datastore directory: ~/.view621
+    /// Root datastore directory: ~/.umamiff
     /// </summary>
-    public static string DataDirectory => Path.Combine(HomeDirectory, ".view621");
+    public static string DataDirectory => Path.Combine(HomeDirectory, ".umamiff");
 
     /// <summary>
-    /// Legacy datastore directory for migration: ~/.umamiff
-    /// </summary>
-    public static string LegacyUmamiffDirectory => Path.Combine(HomeDirectory, ".umamiff");
-
-    /// <summary>
-    /// Bookmarks datastore file: ~/.view621/bookmarks.json
+    /// Bookmarks datastore file: ~/.umamiff/bookmarks.json
     /// </summary>
     public static string BookmarksFilePath => Path.Combine(DataDirectory, "bookmarks.json");
 
     /// <summary>
-    /// Application settings file: ~/.view621/settings.json
+    /// Application settings file: ~/.umamiff/settings.json
     /// </summary>
     public static string SettingsFilePath => Path.Combine(DataDirectory, "settings.json");
 
     /// <summary>
-    /// Previous search history file: ~/.view621/search_history.json
+    /// Previous search history file: ~/.umamiff/search_history.json
     /// </summary>
     public static string SearchHistoryFilePath => Path.Combine(DataDirectory, "search_history.json");
 
     /// <summary>
-    /// Saved searches datastore file: ~/.view621/saved_searches.json
+    /// Saved searches datastore file: ~/.umamiff/saved_searches.json
     /// </summary>
     public static string SavedSearchesFilePath => Path.Combine(DataDirectory, "saved_searches.json");
 
     /// <summary>
-    /// Cached items directory: ~/.view621/cache
+    /// Cached items directory: ~/.umamiff/cache
     /// </summary>
     public static string CacheDirectory => Path.Combine(DataDirectory, "cache");
 
     /// <summary>
-    /// Cached sample images directory for offline access: ~/.view621/cache/images
+    /// Cached sample images directory for offline access: ~/.umamiff/cache/images
     /// </summary>
     public static string ImageCacheDirectory => Path.Combine(CacheDirectory, "images");
 
     /// <summary>
-    /// Cached posts metadata: ~/.view621/cache/posts.json
+    /// Cached posts metadata: ~/.umamiff/cache/posts.json
     /// </summary>
     public static string CachedPostsFilePath => Path.Combine(CacheDirectory, "posts.json");
 
     /// <summary>
-    /// Application diagnostic log file: ~/.view621/app.log
+    /// Application diagnostic log file: ~/.umamiff/app.log
     /// </summary>
     public static string LogFilePath => Path.Combine(DataDirectory, "app.log");
 
@@ -113,8 +108,7 @@ public static class StorageLocations
     }
 
     /// <summary>
-    /// Ensures that ~/.view621, ~/.view621/cache, and ~/.view621/cache/images directories exist,
-    /// and migrates existing files from ~/.umamiff if present.
+    /// Ensures that ~/.umamiff, ~/.umamiff/cache, and ~/.umamiff/cache/images directories exist.
     /// </summary>
     public static void EnsureDirectories()
     {
@@ -124,10 +118,6 @@ public static class StorageLocations
             {
                 Directory.CreateDirectory(DataDirectory);
             }
-
-            // Automatic migration from ~/.umamiff if ~/.view621 is newly created
-            MigrateLegacyData();
-
             if (!Directory.Exists(CacheDirectory))
             {
                 Directory.CreateDirectory(CacheDirectory);
@@ -143,31 +133,8 @@ public static class StorageLocations
         }
     }
 
-    private static void MigrateLegacyData()
-    {
-        try
-        {
-            if (!Directory.Exists(LegacyUmamiffDirectory)) return;
-
-            string[] filesToMigrate = ["bookmarks.json", "settings.json", "search_history.json", "saved_searches.json"];
-            foreach (var file in filesToMigrate)
-            {
-                var legacyFile = Path.Combine(LegacyUmamiffDirectory, file);
-                var targetFile = Path.Combine(DataDirectory, file);
-                if (File.Exists(legacyFile) && !File.Exists(targetFile))
-                {
-                    File.Copy(legacyFile, targetFile, overwrite: false);
-                }
-            }
-        }
-        catch
-        {
-            // Best effort migration
-        }
-    }
-
     /// <summary>
-    /// Writes diagnostic messages to ~/.view621/app.log.
+    /// Writes diagnostic messages to ~/.umamiff/app.log.
     /// </summary>
     public static void Log(string message)
     {
