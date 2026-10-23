@@ -99,7 +99,7 @@ public sealed partial class PostView
                 });
             });
         }
-        else if (_navContext.Mode == NavigationMode.Pool && _navContext.PoolId.HasValue)
+        else if (_navContext.Mode == E6Viewer.Models.NavigationMode.Pool && _navContext.PoolId.HasValue)
         {
             hasRelationships = true;
             PoolsSection.Visibility = Visibility.Visible;

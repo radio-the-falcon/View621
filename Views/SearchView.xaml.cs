@@ -373,7 +373,7 @@ public sealed partial class SearchView : Page
 
         return new PostNavigationContext
         {
-            Mode = NavigationMode.SearchResults,
+            Mode = E6Viewer.Models.NavigationMode.SearchResults,
             Posts = postsSnapshot,
             CurrentIndex = index
         };

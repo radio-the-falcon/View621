@@ -14,8 +14,21 @@ permissions:
 
 jobs:
   build-windows:
-    name: Build Windows
+    name: Build Windows (${{ matrix.platform }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            platform: x64
+            assembly: View621_x86
+          - rid: win-x86
+            platform: x86
+            assembly: View621_x86
+          - rid: win-arm64
+            platform: ARM64
+            assembly: View621_arm
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -26,22 +39,19 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj
+        run: dotnet restore E6Viewer.csproj -r ${{ matrix.rid }}
 
-      - name: Build Windows
-        run: dotnet build E6Viewer.csproj -c Release
+      - name: Publish Windows (${{ matrix.platform }})
+        run: dotnet publish E6Viewer.csproj -c Release -r ${{ matrix.rid }} -f net10.0-windows10.0.26100.0 --self-contained -o ./artifacts/windows-${{ matrix.platform }}
 
-      - name: Publish Windows (Self-Contained x64)
-        run: dotnet publish E6Viewer.csproj -c Release -r win-x64 --self-contained -o ./artifacts/windows-x64
-
-      - name: Upload Windows Artifact
+      - name: Upload Windows Artifact (${{ matrix.platform }})
         uses: actions/upload-artifact@v4
         with:
-          name: View621-Windows-x64
-          path: ./artifacts/windows-x64
+          name: View621-Windows-${{ matrix.platform }}
+          path: ./artifacts/windows-${{ matrix.platform }}
 
   build-linux:
-    name: Build Linux (Desktop Skia GTK)
+    name: Build Linux (Desktop Skia)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -53,13 +63,13 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj -p:EnableWindowsTargeting=true
+        run: dotnet restore E6Viewer.csproj -r linux-x64
 
       - name: Build Linux Desktop
-        run: dotnet build E6Viewer.csproj -c Release -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-desktop
+        run: dotnet build E6Viewer.csproj -c Release -f net10.0-desktop
 
       - name: Publish Linux (Self-Contained x64)
-        run: dotnet publish E6Viewer.csproj -c Release -r linux-x64 --self-contained -o ./artifacts/linux-x64 -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-desktop
+        run: dotnet publish E6Viewer.csproj -c Release -r linux-x64 -f net10.0-desktop --self-contained -o ./artifacts/linux-x64
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
@@ -83,10 +93,10 @@ jobs:
         run: dotnet workload install maccatalyst
 
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj -p:EnableWindowsTargeting=true
+        run: dotnet restore E6Viewer.csproj -r maccatalyst-arm64
 
       - name: Publish Mac Catalyst (arm64 Apple Silicon)
-        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -p:CreatePackage=true -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-maccatalyst -o ./artifacts/macos-catalyst-arm64
+        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -f net10.0-maccatalyst --self-contained -o ./artifacts/macos-catalyst-arm64
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4

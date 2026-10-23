@@ -18,7 +18,9 @@ public sealed partial class MainWindow : Window
 
         WindowChromeHelper.InitializeTitleBar(this, AppTitleBar);
         WindowChromeHelper.SetAppIcon(AppWindow);
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 750));
+        #if WINDOWS
+        AppWindow?.Resize(new Windows.Graphics.SizeInt32 { Width = 1100, Height = 750 });
+#endif
 
         SyncSidebarHideSex();
         SyncSidebarRating();
