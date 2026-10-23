@@ -84,7 +84,7 @@
                             <StackPanel Spacing="10" Width="220">
                                 <TextBlock Text="Clear all pinned posts?" FontWeight="SemiBold" />
                                 <TextBlock
-                                    Text="This will remove all saved posts from your pinned datastore in ~/.umamiff."
+                                    Text="This will remove all saved posts from your pinned datastore in ~/.view621."
                                     TextWrapping="Wrap"
                                     FontSize="12"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}" />

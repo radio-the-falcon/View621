@@ -29,7 +29,7 @@ public class ImageCacheService : IImageCacheService
             Timeout = TimeSpan.FromSeconds(30)
         };
         client.DefaultRequestHeaders.UserAgent.Clear();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Umamiff/1.0 (by Antigravity on e621)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("View621/1.0 (by Antigravity on e621)");
         return client;
     }
 

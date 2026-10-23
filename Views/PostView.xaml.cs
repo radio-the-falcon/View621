@@ -358,7 +358,7 @@ public sealed partial class PostView : Page
             if (file != null)
             {
                 using var httpClient = new System.Net.Http.HttpClient();
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "Umamiff/1.0 (by Antigravity on e621)");
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "View621/1.0 (by Antigravity on e621)");
                 var bytes = await httpClient.GetByteArrayAsync(Post.FullUrl);
                 await Windows.Storage.FileIO.WriteBytesAsync(file, bytes);
             }

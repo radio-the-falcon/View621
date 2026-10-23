@@ -20,8 +20,6 @@ public static class AppSettings
 
     private static string _apiBaseUrl = "https://e621.net"; // Always e621.net
     private static int _pageSize = 40;
-    private static string _username = string.Empty;
-    private static string _apiKey = string.Empty;
 
     // Show gender filter: "All", "Male" (-female), "Female" (-male)
     private static string _showGender = "All";
@@ -64,34 +62,7 @@ public static class AppSettings
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
             }
-        }
-    }
 
-    public static string Username
-    {
-        get => _username;
-        set
-        {
-            if (_username != value)
-            {
-                _username = value;
-                SaveSettings();
-                SettingsChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
-    }
-
-    public static string ApiKey
-    {
-        get => _apiKey;
-        set
-        {
-            if (_apiKey != value)
-            {
-                _apiKey = value;
-                SaveSettings();
-                SettingsChanged?.Invoke(null, EventArgs.Empty);
-            }
         }
     }
 
@@ -217,8 +188,6 @@ public static class AppSettings
     {
         public string? ApiBaseUrl { get; set; }
         public int PageSize { get; set; } = 40;
-        public string? Username { get; set; }
-        public string? ApiKey { get; set; }
         public string? ShowGender { get; set; }
         public string? ShowSex { get; set; } // Backward compatibility
         public string? RatingFilter { get; set; }
@@ -248,8 +217,6 @@ public static class AppSettings
                 {
                     _apiBaseUrl = "https://e621.net"; // Always e621.net
                     if (data.PageSize > 0) _pageSize = data.PageSize;
-                    if (data.Username != null) _username = data.Username;
-                    if (data.ApiKey != null) _apiKey = data.ApiKey;
                     if (!string.IsNullOrWhiteSpace(data.ShowGender)) _showGender = data.ShowGender;
                     else if (!string.IsNullOrWhiteSpace(data.ShowSex)) _showGender = data.ShowSex;
                     if (!string.IsNullOrWhiteSpace(data.RatingFilter)) _ratingFilter = data.RatingFilter;
@@ -311,8 +278,6 @@ public static class AppSettings
             {
                 ApiBaseUrl = _apiBaseUrl,
                 PageSize = _pageSize,
-                Username = _username,
-                ApiKey = _apiKey,
                 ShowGender = _showGender,
                 RatingFilter = _ratingFilter,
                 BackdropKind = _backdropKind,

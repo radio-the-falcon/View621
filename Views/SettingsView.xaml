@@ -81,34 +81,12 @@
                 </controls:SettingsCard>
             </StackPanel>
 
-            <!-- Authentication Section -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="Account &amp; API Credentials (Optional)" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <controls:SettingsCard
-                    Header="Username"
-                    Description="Your username on e621 / e926">
-                    <controls:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE77B;" />
-                    </controls:SettingsCard.HeaderIcon>
-                    <TextBox x:Name="UsernameTextBox" Width="220" TextChanged="UsernameTextBox_TextChanged" PlaceholderText="Username" />
-                </controls:SettingsCard>
-
-                <controls:SettingsCard
-                    Header="API Key"
-                    Description="Generated from your e621 account settings page">
-                    <controls:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE8D7;" />
-                    </controls:SettingsCard.HeaderIcon>
-                    <PasswordBox x:Name="ApiKeyPasswordBox" Width="220" PasswordChanged="ApiKeyPasswordBox_PasswordChanged" PlaceholderText="API Key" />
-                </controls:SettingsCard>
-            </StackPanel>
-
             <!-- Data & Storage Section -->
             <StackPanel Spacing="6">
                 <TextBlock Text="Data &amp; Storage" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <controls:SettingsCard
                     Header="Data Location"
-                    Description="Local storage for cache, bookmarks, settings, and logs (~/.umamiff)">
+                    Description="Local storage for cache, bookmarks, settings, and logs (~/.view621)">
                     <controls:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED25;" />
                     </controls:SettingsCard.HeaderIcon>

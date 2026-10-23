@@ -26,7 +26,7 @@ public class E621ApiClient : IImageService
         };
         // E621 / e926 API strictly requires a clean descriptive User-Agent header
         client.DefaultRequestHeaders.UserAgent.Clear();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("E6Viewer/1.0 (by e6_viewer_user on e621)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("View621/1.0 (Desktop client; https://github.com/e6_viewer)");
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }
@@ -35,12 +35,7 @@ public class E621ApiClient : IImageService
     {
         var request = new HttpRequestMessage(method, requestUri);
 
-        // Apply Basic Auth if user provided API key in settings
-        if (!string.IsNullOrWhiteSpace(AppSettings.Username) && !string.IsNullOrWhiteSpace(AppSettings.ApiKey))
-        {
-            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{AppSettings.Username}:{AppSettings.ApiKey}"));
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
-        }
+
 
         return request;
     }

@@ -16,7 +16,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
 
-        WindowChromeHelper.InitializeTitleBar(this, AppTitleBar, TitleBarHeightOption.Tall);
+        WindowChromeHelper.InitializeTitleBar(this, AppTitleBar);
         WindowChromeHelper.SetAppIcon(AppWindow);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 750));
 

@@ -1,6 +1,6 @@
-# Umamiff (E6Viewer)
+# View621
 
-**Umamiff** is a native, unpackaged Windows 10 & 11 desktop client designed for browsing, searching, and viewing content from **e621** and **e926**. Built with **WinUI 3** and **.NET 10**, it provides a fluent, modern user experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, native media streaming, local offline caching, and bookmarks management.
+**View621** is a native, unpackaged Windows 10 & 11 desktop client designed for browsing, searching, and viewing content from **e621** and **e926**. Built with **WinUI 3** and **.NET 10**, it provides a fluent, modern user experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, native media streaming, local offline caching, and bookmarks management.
 
 ---
 
@@ -56,7 +56,7 @@
 - **Dedicated Bookmarks View**: Access all bookmarked items directly from the sidebar navigation pane.
 
 ### ⚙️ Persistent Configuration & Data Storage
-All application data is cleanly isolated in `~/.umamiff` (`C:\Users\<User>\.umamiff`):
+All application data is cleanly isolated in `~/.View621` (`C:\Users\<User>\.View621`):
 - `settings.json`: Theme, materials, opacity, credentials, and API configuration.
 - `bookmarks.json`: Saved post bookmarks.
 - `search_history.json`: Recent search queries.
@@ -64,7 +64,7 @@ All application data is cleanly isolated in `~/.umamiff` (`C:\Users\<User>\.umam
 - `cache/posts.json`: Cached post metadata index.
 - `app.log`: Diagnostics and error logs.
 
-**Direct Folder Access**: The Settings page includes a dedicated **Open folder** button under **Data & Storage** to instantly launch `~/.umamiff` in Windows File Explorer.
+**Direct Folder Access**: The Settings page includes a dedicated **Open folder** button under **Data & Storage** to instantly launch `~/.View621` in Windows File Explorer.
 
 ---
 
@@ -100,16 +100,16 @@ dotnet run --no-build -c Debug
 To generate a standalone `.exe` that runs anywhere without requiring external dependencies, pre-installed runtimes, or neighbouring DLLs:
 
 ```powershell
-# For x64 / x86 (generates Umamiff_x86.exe)
+# For x64 / x86 (generates View621_x86.exe)
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
-# For ARM64 (generates Umamiff_arm.exe)
+# For ARM64 (generates View621_arm.exe)
 dotnet publish -c Release -r win-arm64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 ```
 
 Output binaries:
-- `bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\Umamiff_x86.exe`
-- `bin\Release\net10.0-windows10.0.26100.0\win-arm64\publish\Umamiff_arm.exe`
+- `bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\View621_x86.exe`
+- `bin\Release\net10.0-windows10.0.26100.0\win-arm64\publish\View621_arm.exe`
 
 ---
 
@@ -129,12 +129,12 @@ e6_viewer/
 │   ├── SettingsPage.xaml(.cs)   # Theme, backdrop, API credentials, and data location launcher
 │   └── AboutPage.xaml           # Application information and build details
 ├── Services/
-│   ├── AppSettings.cs           # Settings persistence manager (~/.umamiff/settings.json)
+│   ├── AppSettings.cs           # Settings persistence manager (~/.View621/settings.json)
 │   ├── BookmarkService.cs       # Bookmark storage and cached post catalogue manager
 │   ├── E621ApiClient.cs         # Async REST client for search and autocompletion
 │   ├── IImageService.cs         # Service contract for API interactions
 │   ├── ITabService.cs           # Multi-tab broker contract
-│   ├── StorageLocations.cs      # Centralised paths, directory helpers, and logging (~/.umamiff)
+│   ├── StorageLocations.cs      # Centralised paths, directory helpers, and logging (~/.View621)
 │   ├── TabService.cs            # Coordinates tabs and navigation across views
 │   └── ThemeService.cs          # Theme and window backdrop helper
 ├── ViewModels/

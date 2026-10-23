@@ -1,6 +1,7 @@
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using E6Viewer.Helpers;
 using E6Viewer.Services;
 
 namespace E6Viewer.Views;
@@ -36,9 +37,6 @@ public sealed partial class SettingsView : Page
             75 => 2,
             _ => 1
         };
-
-        UsernameTextBox.Text = AppSettings.Username;
-        ApiKeyPasswordBox.Password = AppSettings.ApiKey;
 
         _isInitializing = false;
     }
@@ -92,42 +90,9 @@ public sealed partial class SettingsView : Page
         }
     }
 
-    private void UsernameTextBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        if (_isInitializing) return;
-        AppSettings.Username = UsernameTextBox.Text.Trim();
-    }
-
-    private void ApiKeyPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isInitializing) return;
-        AppSettings.ApiKey = ApiKeyPasswordBox.Password.Trim();
-    }
-
     private async void OpenDataFolderButton_Click(object sender, RoutedEventArgs e)
     {
-        try
-        {
-            StorageLocations.EnsureDirectories();
-            var dir = StorageLocations.DataDirectory;
-            if (System.IO.Directory.Exists(dir))
-            {
-                var folder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(dir);
-                await Windows.System.Launcher.LaunchFolderAsync(folder);
-            }
-        }
-        catch
-        {
-            try
-            {
-                // Fallback to Process.Start with explorer.exe
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = StorageLocations.DataDirectory,
-                    UseShellExecute = true
-                });
-            }
-            catch { }
-        }
+        StorageLocations.EnsureDirectories();
+        await CrossPlatformLauncher.OpenFolderAsync(StorageLocations.DataDirectory);
     }
 }

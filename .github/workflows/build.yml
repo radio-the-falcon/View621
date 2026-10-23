@@ -1,0 +1,95 @@
+name: Build View621 (Cross-Platform)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore E6Viewer.csproj
+
+      - name: Build Windows
+        run: dotnet build E6Viewer.csproj -c Release
+
+      - name: Publish Windows (Self-Contained x64)
+        run: dotnet publish E6Viewer.csproj -c Release -r win-x64 --self-contained -o ./artifacts/windows-x64
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: View621-Windows-x64
+          path: ./artifacts/windows-x64
+
+  build-linux:
+    name: Build Linux (Desktop Skia GTK)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore E6Viewer.csproj
+
+      - name: Build Linux Desktop
+        run: dotnet build E6Viewer.csproj -c Release -p:TargetFramework=net10.0-desktop
+
+      - name: Publish Linux (Self-Contained x64)
+        run: dotnet publish E6Viewer.csproj -c Release -r linux-x64 --self-contained -o ./artifacts/linux-x64 -p:TargetFramework=net10.0-desktop
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: View621-Linux-x64
+          path: ./artifacts/linux-x64
+
+  build-macos:
+    name: Build macOS (Mac Catalyst)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Mac Catalyst Workload
+        run: dotnet workload install maccatalyst
+
+      - name: Restore Dependencies
+        run: dotnet restore E6Viewer.csproj
+
+      - name: Publish Mac Catalyst (arm64 Apple Silicon)
+        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -p:CreatePackage=true -p:TargetFramework=net10.0-maccatalyst -o ./artifacts/macos-catalyst-arm64
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: View621-macOS-Catalyst-arm64
+          path: ./artifacts/macos-catalyst-arm64

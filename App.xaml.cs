@@ -58,7 +58,7 @@ public partial class App : Application
     {
         try
         {
-            // Ensure ~/.umamiff and cache directories exist on first launch
+            // Ensure ~/.view621 and cache directories exist on first launch
             E6Viewer.Services.StorageLocations.EnsureDirectories();
 
             // Register canonical views

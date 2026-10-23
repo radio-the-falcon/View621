@@ -17,7 +17,7 @@
   <mp:PhoneIdentity PhoneProductId="A6783ADD-6F62-43C0-A4B6-72673DE09CC4" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Umamiff</DisplayName>
+    <DisplayName>View621</DisplayName>
     <PublisherDisplayName>AppPublisher</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <uap10:PackageIntegrity>
@@ -39,8 +39,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Umamiff"
-        Description="Umamiff: An e621.net viewer"
+        DisplayName="View621"
+        Description="View621: An e621.net viewer"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

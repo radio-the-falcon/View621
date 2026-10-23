@@ -15,10 +15,10 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-arm64' Or '$(Platform)' == 'ARM64'">Umamiff_arm</AssemblyName>
-    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x86' Or '$(Platform)' == 'x86'">Umamiff_x86</AssemblyName>
-    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(Platform)' == 'x64'">Umamiff_x86</AssemblyName>
-    <AssemblyName Condition="'$(AssemblyName)' == ''">Umamiff_x86</AssemblyName>
+    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-arm64' Or '$(Platform)' == 'ARM64'">View621_arm</AssemblyName>
+    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x86' Or '$(Platform)' == 'x86'">View621_x86</AssemblyName>
+    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(Platform)' == 'x64'">View621_x86</AssemblyName>
+    <AssemblyName Condition="'$(AssemblyName)' == ''">View621_x86</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
