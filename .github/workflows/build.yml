@@ -91,7 +91,7 @@ jobs:
         run: dotnet restore E6Viewer.csproj -r maccatalyst-arm64
 
       - name: Publish Mac Catalyst (arm64 Apple Silicon)
-        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -f net10.0-maccatalyst --self-contained -p:EnableCodeSigning=false -o ./artifacts/macos-catalyst-arm64
+        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -f net10.0-maccatalyst --self-contained -p:EnableCodeSigning=false -p:PublishTrimmed=true -p:MtouchLink=None -o ./artifacts/macos-catalyst-arm64
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
