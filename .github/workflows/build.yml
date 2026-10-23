@@ -53,13 +53,13 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj
+        run: dotnet restore E6Viewer.csproj -p:EnableWindowsTargeting=true
 
       - name: Build Linux Desktop
-        run: dotnet build E6Viewer.csproj -c Release -p:TargetFramework=net10.0-desktop
+        run: dotnet build E6Viewer.csproj -c Release -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-desktop
 
       - name: Publish Linux (Self-Contained x64)
-        run: dotnet publish E6Viewer.csproj -c Release -r linux-x64 --self-contained -o ./artifacts/linux-x64 -p:TargetFramework=net10.0-desktop
+        run: dotnet publish E6Viewer.csproj -c Release -r linux-x64 --self-contained -o ./artifacts/linux-x64 -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-desktop
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
@@ -83,10 +83,10 @@ jobs:
         run: dotnet workload install maccatalyst
 
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj
+        run: dotnet restore E6Viewer.csproj -p:EnableWindowsTargeting=true
 
       - name: Publish Mac Catalyst (arm64 Apple Silicon)
-        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -p:CreatePackage=true -p:TargetFramework=net10.0-maccatalyst -o ./artifacts/macos-catalyst-arm64
+        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -p:CreatePackage=true -p:EnableWindowsTargeting=true -p:TargetFramework=net10.0-maccatalyst -o ./artifacts/macos-catalyst-arm64
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4

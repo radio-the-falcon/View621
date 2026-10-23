@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable cross-compiling and restoring Windows-targeted assemblies on non-Windows hosts (Linux, macOS) in CI/CD -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+</Project>
