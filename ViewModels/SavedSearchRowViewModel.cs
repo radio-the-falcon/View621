@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.ViewModels;
+namespace View621.ViewModels;
 
 /// <summary>
 /// View model representing an individual saved search row within SavedSearchesView.

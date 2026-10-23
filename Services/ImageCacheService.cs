@@ -1,14 +1,14 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Downloads and caches sample images in ~/.umamiff/cache/images for offline access.
+/// Downloads and caches sample images in ~/.View621/cache/images for offline access.
 /// </summary>
 public class ImageCacheService : IImageCacheService
 {

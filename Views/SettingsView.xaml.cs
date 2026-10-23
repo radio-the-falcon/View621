@@ -1,12 +1,13 @@
-using System;
+﻿using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using E6Viewer.Services;
+using View621.Services;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class SettingsView : Page
 {
+    private readonly IImageService _imageService = new E621ApiClient();
     private bool _isInitializing = true;
 
     public SettingsView()
@@ -128,6 +129,57 @@ public sealed partial class SettingsView : Page
                 });
             }
             catch { }
+        }
+    }
+
+    private async void VerifyLoginButton_Click(object sender, RoutedEventArgs e)
+    {
+        var user = UsernameTextBox.Text.Trim();
+        var key = ApiKeyPasswordBox.Password.Trim();
+
+        if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(key))
+        {
+            LoginStatusInfoBar.Severity = InfoBarSeverity.Warning;
+            LoginStatusInfoBar.Title = "Missing credentials";
+            LoginStatusInfoBar.Message = "Please enter both a username and an API key before verifying.";
+            LoginStatusInfoBar.IsOpen = true;
+            return;
+        }
+
+        VerifyLoginButton.IsEnabled = false;
+        VerifyProgressRing.Visibility = Visibility.Visible;
+        VerifyProgressRing.IsActive = true;
+        LoginStatusInfoBar.IsOpen = false;
+
+        try
+        {
+            var (success, message) = await _imageService.VerifyLoginAsync(user, key);
+            if (success)
+            {
+                LoginStatusInfoBar.Severity = InfoBarSeverity.Success;
+                LoginStatusInfoBar.Title = "Login verified";
+                LoginStatusInfoBar.Message = message;
+            }
+            else
+            {
+                LoginStatusInfoBar.Severity = InfoBarSeverity.Error;
+                LoginStatusInfoBar.Title = "Login failed";
+                LoginStatusInfoBar.Message = message;
+            }
+            LoginStatusInfoBar.IsOpen = true;
+        }
+        catch (Exception ex)
+        {
+            LoginStatusInfoBar.Severity = InfoBarSeverity.Error;
+            LoginStatusInfoBar.Title = "Verification error";
+            LoginStatusInfoBar.Message = ex.Message;
+            LoginStatusInfoBar.IsOpen = true;
+        }
+        finally
+        {
+            VerifyProgressRing.IsActive = false;
+            VerifyProgressRing.Visibility = Visibility.Collapsed;
+            VerifyLoginButton.IsEnabled = true;
         }
     }
 }

@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// In-memory cache for search query results to avoid redundant API requests.

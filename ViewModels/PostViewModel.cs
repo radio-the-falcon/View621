@@ -1,9 +1,9 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.ViewModels;
+namespace View621.ViewModels;
 
 /// <summary>
 /// ViewModel managing presentation state, resolution toggling, and bookmark/pin state for PostView.
@@ -44,6 +44,18 @@ public partial class PostViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(BookmarkTooltip))]
     public partial bool IsBookmarked { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsFavorited { get; set; }
+
+    [ObservableProperty]
+    public partial int? OurScore { get; set; }
+
+    [ObservableProperty]
+    public partial int Score { get; set; }
+
+    [ObservableProperty]
+    public partial int FavCount { get; set; }
+
     public string ResolutionButtonText => IsOriginalView ? "Switch to sample view" : "Switch to full view";
     public string BookmarkGlyph => IsBookmarked ? "\uE840" : "\uE718";
     public string BookmarkTooltip => IsBookmarked ? "Unpin post" : "Pin post";
@@ -54,6 +66,11 @@ public partial class PostViewModel : ObservableObject
         IsOriginalView = false;
         IsBookmarked = _bookmarkService.IsBookmarked(post.Id);
         post.IsBookmarked = IsBookmarked;
+
+        IsFavorited = post.IsFavorited;
+        OurScore = post.OurScore;
+        Score = post.Score;
+        FavCount = post.FavCount;
     }
 
     public void ToggleBookmark()

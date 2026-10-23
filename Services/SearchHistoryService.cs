@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Persists and manages recent search terms in ~/.umamiff/search_history.json.
+/// Persists and manages recent search terms in ~/.View621/search_history.json.
 /// </summary>
 public class SearchHistoryService : ISearchHistoryService
 {

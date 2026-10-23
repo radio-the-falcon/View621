@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.IO;
 using Microsoft.UI.Xaml;
 using Windows.Media.Core;
 using Windows.Media.Playback;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class PostView
 {

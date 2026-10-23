@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Windows.Foundation;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class PostView
 {

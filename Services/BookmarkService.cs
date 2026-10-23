@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Manages bookmarked posts and persists post IDs to ~/.umamiff in a JSON file.
+/// Manages bookmarked posts and persists post IDs to ~/.View621 in a JSON file.
 /// </summary>
 public class BookmarkService : IBookmarkService
 {

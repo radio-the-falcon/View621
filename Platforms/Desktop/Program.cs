@@ -1,9 +1,9 @@
-#if HAS_UNO_SKIA
+﻿#if HAS_UNO_SKIA
 using System;
 using Uno.UI.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace E6Viewer;
+namespace View621;
 
 public static class Program
 {

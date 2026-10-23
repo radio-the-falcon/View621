@@ -1,8 +1,8 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Service interface for downloading, caching, and serving offline sample images.

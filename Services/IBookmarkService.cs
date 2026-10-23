@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 public interface IBookmarkService
 {

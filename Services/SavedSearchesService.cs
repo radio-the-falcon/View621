@@ -1,14 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Persists and manages user saved searches in ~/.umamiff/saved_searches.json.
+/// Persists and manages user saved searches in ~/.View621/saved_searches.json.
 /// </summary>
 public class SavedSearchesService : ISavedSearchesService
 {

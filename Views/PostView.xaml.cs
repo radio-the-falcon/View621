@@ -9,12 +9,12 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Streams;
 using Windows.System;
-using E6Viewer.Models;
-using E6Viewer.Services;
-using E6Viewer.ViewModels;
-using PostNavMode = E6Viewer.Models.NavigationMode;
+using View621.Models;
+using View621.Services;
+using View621.ViewModels;
+using PostNavMode = View621.Models.NavigationMode;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 /// <summary>
 /// Canonical view for inspecting individual posts, media playback, zoom/pan manipulation, and relations.
@@ -144,6 +144,7 @@ public sealed partial class PostView : Page
         ViewModel.SetPost(post);
         _isOriginalView = false;
         ResolutionButtonText.Text = "Switch to full view";
+        UpdateActionButtons();
 
         _isFitToFill = !IsExemptFromFit();
         Bindings.Update();
@@ -366,6 +367,143 @@ public sealed partial class PostView : Page
         catch (Exception ex)
         {
             File.AppendAllText("startup_error.log", $"[SaveImage Error] {ex}\n");
+        }
+    }
+
+    private void UpdateActionButtons()
+    {
+        if (Post == null) return;
+
+        // Upvote button state & tooltip
+        if (Post.OurScore == 1)
+        {
+            UpvoteButton.Opacity = 1.0;
+            UpvoteIcon.Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["SystemAccentColor"];
+            ToolTipService.SetToolTip(UpvoteButton, "Upvoted (click to clear vote)");
+        }
+        else
+        {
+            UpvoteButton.Opacity = 0.85;
+            UpvoteIcon.Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+            ToolTipService.SetToolTip(UpvoteButton, "Upvote (Score +1)");
+        }
+
+        // Downvote button state & tooltip
+        if (Post.OurScore == -1)
+        {
+            DownvoteButton.Opacity = 1.0;
+            DownvoteIcon.Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["SystemAccentColor"];
+            ToolTipService.SetToolTip(DownvoteButton, "Downvoted (click to clear vote)");
+        }
+        else
+        {
+            DownvoteButton.Opacity = 0.85;
+            DownvoteIcon.Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+            ToolTipService.SetToolTip(DownvoteButton, "Downvote (Score -1)");
+        }
+
+        // Favourite button state & tooltip
+        if (Post.IsFavorited)
+        {
+            PostFavIcon.Glyph = "\uE735";
+            PostFavIcon.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 236, 72, 153));
+            PostFavButton.Opacity = 1.0;
+            ToolTipService.SetToolTip(PostFavButton, "Remove from favourites");
+        }
+        else
+        {
+            PostFavIcon.Glyph = "\uE734";
+            PostFavIcon.Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+            PostFavButton.Opacity = 0.85;
+            ToolTipService.SetToolTip(PostFavButton, "Add to favourites");
+        }
+
+        if (MetadataScoreText != null)
+        {
+            MetadataScoreText.Text = Post.Score.ToString();
+        }
+        if (MetadataFavCountText != null)
+        {
+            MetadataFavCountText.Text = Post.FavCount.ToString();
+        }
+    }
+
+    private async void UpvoteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!AppSettings.IsLoggedIn)
+        {
+            ActionLoginNotice.IsOpen = true;
+            return;
+        }
+        ActionLoginNotice.IsOpen = false;
+
+        var targetScore = Post.OurScore == 1 ? 0 : 1;
+        var (success, newScore, ourScore) = await _imageService.VotePostAsync(Post.Id, targetScore);
+        if (success)
+        {
+            Post.Score = newScore;
+            Post.OurScore = ourScore;
+            UpdateActionButtons();
+        }
+    }
+
+    private async void DownvoteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!AppSettings.IsLoggedIn)
+        {
+            ActionLoginNotice.IsOpen = true;
+            return;
+        }
+        ActionLoginNotice.IsOpen = false;
+
+        var targetScore = Post.OurScore == -1 ? 0 : -1;
+        var (success, newScore, ourScore) = await _imageService.VotePostAsync(Post.Id, targetScore);
+        if (success)
+        {
+            Post.Score = newScore;
+            Post.OurScore = ourScore;
+            UpdateActionButtons();
+        }
+    }
+
+    private async void PostFavButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!AppSettings.IsLoggedIn)
+        {
+            ActionLoginNotice.IsOpen = true;
+            return;
+        }
+        ActionLoginNotice.IsOpen = false;
+
+        PostFavButton.IsEnabled = false;
+        try
+        {
+            if (Post.IsFavorited)
+            {
+                var success = await _imageService.RemoveFavoriteAsync(Post.Id);
+                if (success)
+                {
+                    Post.IsFavorited = false;
+                    Post.FavCount = Math.Max(0, Post.FavCount - 1);
+                    FavoritesService.Instance.Decrement();
+                    UpdateActionButtons();
+                }
+            }
+            else
+            {
+                var success = await _imageService.AddFavoriteAsync(Post.Id);
+                if (success)
+                {
+                    Post.IsFavorited = true;
+                    Post.FavCount++;
+                    FavoritesService.Instance.Increment();
+                    UpdateActionButtons();
+                }
+            }
+        }
+        finally
+        {
+            PostFavButton.IsEnabled = true;
         }
     }
 }

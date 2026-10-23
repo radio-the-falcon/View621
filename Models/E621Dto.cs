@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace E6Viewer.Models;
+namespace View621.Models;
 
 public class E621PostsResponse
 {
@@ -56,6 +56,18 @@ public class E621PostDto
 
     [JsonPropertyName("pools")]
     public List<long>? Pools { get; set; }
+
+    [JsonPropertyName("is_favorited")]
+    public bool IsFavorited { get; set; }
+}
+
+public class E621VoteResponseDto
+{
+    [JsonPropertyName("our_score")]
+    public int? OurScore { get; set; }
+
+    [JsonPropertyName("score")]
+    public E621ScoreDto? Score { get; set; }
 }
 
 public class E621RelationshipsDto

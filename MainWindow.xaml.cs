@@ -2,13 +2,13 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using E6Viewer.Helpers;
-using E6Viewer.Views;
+using View621.Helpers;
+using View621.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace E6Viewer;
+namespace View621;
 
 public sealed partial class MainWindow : Window
 {
@@ -24,7 +24,7 @@ public sealed partial class MainWindow : Window
 
         SyncSidebarHideSex();
         SyncSidebarRating();
-        E6Viewer.Services.AppSettings.SettingsChanged += (_, _) =>
+        View621.Services.AppSettings.SettingsChanged += (_, _) =>
         {
             DispatcherQueue.TryEnqueue(() =>
             {
@@ -35,11 +35,17 @@ public sealed partial class MainWindow : Window
         };
 
         SyncSearchHistory();
-        E6Viewer.Services.AppSettings.SearchHistoryChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncSearchHistory);
+        View621.Services.AppSettings.SearchHistoryChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncSearchHistory);
 
         SyncNavBadges();
-        E6Viewer.Services.BookmarkService.Instance.BookmarksChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncNavBadges);
-        E6Viewer.Services.SavedSearchesService.Instance.SavedSearchesChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncNavBadges);
+        View621.Services.BookmarkService.Instance.BookmarksChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncNavBadges);
+        View621.Services.SavedSearchesService.Instance.SavedSearchesChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncNavBadges);
+        View621.Services.FavoritesService.Instance.FavoritesChanged += (_, _) => DispatcherQueue.TryEnqueue(SyncNavBadges);
+        View621.Services.AppSettings.LoginStateChanged += (_, _) =>
+        {
+            View621.Services.FavoritesService.Instance.Invalidate();
+            DispatcherQueue.TryEnqueue(SyncNavBadges);
+        };
 
         NavView.PaneOpening += (s, _) => UpdateSidebarPaneDisplay(isPaneOpen: true);
         NavView.PaneClosing += (s, _) => UpdateSidebarPaneDisplay(isPaneOpen: false);
@@ -55,7 +61,7 @@ public sealed partial class MainWindow : Window
         }
 
         // Hook up TabService singleton events
-        if (E6Viewer.Services.TabService.Instance is E6Viewer.Services.TabService ts)
+        if (View621.Services.TabService.Instance is View621.Services.TabService ts)
         {
             ts.ExploreRequested += () => { NavView.SelectedItem = NavView.MenuItems[0]; };
             ts.SearchTabRequested += (query) => AddSearchTab(query);
@@ -72,9 +78,9 @@ public sealed partial class MainWindow : Window
     {
         WindowChromeHelper.ApplySystemBackdrop(
             this,
-            E6Viewer.Services.AppSettings.BackdropKind,
+            View621.Services.AppSettings.BackdropKind,
             TintOverlayGrid,
-            E6Viewer.Services.AppSettings.BackdropOpacity);
+            View621.Services.AppSettings.BackdropOpacity);
     }
 
     public void UpdateTitleBarColors()
@@ -88,7 +94,7 @@ public sealed partial class MainWindow : Window
     private void SyncSearchHistory()
     {
         _searchHistory.Clear();
-        foreach (var query in E6Viewer.Services.AppSettings.SearchHistory)
+        foreach (var query in View621.Services.AppSettings.SearchHistory)
         {
             _searchHistory.Add(query);
         }
@@ -102,7 +108,7 @@ public sealed partial class MainWindow : Window
     {
         if (PinnedBadge != null)
         {
-            var pinnedCount = E6Viewer.Services.BookmarkService.Instance.GetBookmarkedPostIds().Count;
+            var pinnedCount = View621.Services.BookmarkService.Instance.GetBookmarkedPostIds().Count;
             if (pinnedCount > 0)
             {
                 PinnedBadge.Value = pinnedCount;
@@ -116,7 +122,7 @@ public sealed partial class MainWindow : Window
 
         if (SavedBadge != null)
         {
-            var savedCount = E6Viewer.Services.SavedSearchesService.Instance.GetSavedSearches().Count;
+            var savedCount = View621.Services.SavedSearchesService.Instance.GetSavedSearches().Count;
             if (savedCount > 0)
             {
                 SavedBadge.Value = savedCount;
@@ -125,6 +131,53 @@ public sealed partial class MainWindow : Window
             else
             {
                 SavedBadge.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        if (FavouritesBadge != null)
+        {
+            if (!View621.Services.AppSettings.IsLoggedIn)
+            {
+                FavouritesBadge.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                var cached = View621.Services.FavoritesService.Instance.CachedCount;
+                if (cached.HasValue)
+                {
+                    if (cached.Value > 0)
+                    {
+                        FavouritesBadge.Value = cached.Value;
+                        FavouritesBadge.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        FavouritesBadge.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    // Asynchronously fetch count if not yet cached
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var service = new View621.Services.E621ApiClient();
+                            var count = await service.GetFavoritesCountAsync();
+                            if (count.HasValue)
+                            {
+                                DispatcherQueue.TryEnqueue(() =>
+                                {
+                                    View621.Services.FavoritesService.Instance.SetCount(count.Value);
+                                });
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore network error on badge load
+                        }
+                    });
+                }
             }
         }
     }
@@ -141,13 +194,13 @@ public sealed partial class MainWindow : Window
     {
         if (sender is Button { Tag: string query })
         {
-            E6Viewer.Services.AppSettings.RemoveSearchFromHistory(query);
+            View621.Services.AppSettings.RemoveSearchFromHistory(query);
         }
     }
 
     private void ClearSearchHistoryButton_Click(object sender, RoutedEventArgs e)
     {
-        E6Viewer.Services.AppSettings.ClearSearchHistory();
+        View621.Services.AppSettings.ClearSearchHistory();
     }
 
     private bool _isResizingSearchHistory;
@@ -216,7 +269,7 @@ public sealed partial class MainWindow : Window
     {
         if (SidebarRatingComboBox == null) return;
         _isSyncingRating = true;
-        SidebarRatingComboBox.SelectedIndex = E6Viewer.Services.AppSettings.RatingFilter switch
+        SidebarRatingComboBox.SelectedIndex = View621.Services.AppSettings.RatingFilter switch
         {
             "Safe" => 0,
             "Questionable" => 1,
@@ -231,7 +284,7 @@ public sealed partial class MainWindow : Window
 
         if (SidebarRatingComboBox.SelectedItem is ComboBoxItem item && item.Tag is string rating)
         {
-            E6Viewer.Services.AppSettings.RatingFilter = rating;
+            View621.Services.AppSettings.RatingFilter = rating;
         }
     }
 
@@ -241,7 +294,7 @@ public sealed partial class MainWindow : Window
     {
         if (SidebarHideSexComboBox == null) return;
         _isSyncingHideSex = true;
-        SidebarHideSexComboBox.SelectedIndex = E6Viewer.Services.AppSettings.ShowGender switch
+        SidebarHideSexComboBox.SelectedIndex = View621.Services.AppSettings.ShowGender switch
         {
             "Male" => 1,
             "Female" => 2,
@@ -256,7 +309,7 @@ public sealed partial class MainWindow : Window
 
         if (SidebarHideSexComboBox.SelectedItem is ComboBoxItem item && item.Tag is string showGender)
         {
-            E6Viewer.Services.AppSettings.ShowGender = showGender;
+            View621.Services.AppSettings.ShowGender = showGender;
         }
     }
 
@@ -315,12 +368,12 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    public void AddPostTab(E6Viewer.Models.ImagePost post, E6Viewer.Models.PostNavigationContext? context = null)
+    public void AddPostTab(View621.Models.ImagePost post, View621.Models.PostNavigationContext? context = null)
     {
         var frame = new Frame();
-        frame.Navigate(typeof(PostView), context ?? new E6Viewer.Models.PostNavigationContext
+        frame.Navigate(typeof(PostView), context ?? new View621.Models.PostNavigationContext
         {
-            Posts = new System.Collections.Generic.List<E6Viewer.Models.ImagePost> { post },
+            Posts = new System.Collections.Generic.List<View621.Models.ImagePost> { post },
             CurrentIndex = 0
         });
 
@@ -344,9 +397,9 @@ public sealed partial class MainWindow : Window
 
     public void AddPoolTab(long poolId, string? poolName = null)
     {
-        var navContext = new E6Viewer.Models.PostNavigationContext
+        var navContext = new View621.Models.PostNavigationContext
         {
-            Mode = E6Viewer.Models.NavigationMode.Pool,
+            Mode = View621.Models.NavigationMode.Pool,
             PoolId = poolId,
             PoolName = poolName
         };
@@ -392,6 +445,11 @@ public sealed partial class MainWindow : Window
 
     private void CloseTab(TabViewItem tab)
     {
+        if (tab.Content is Frame { Content: SearchView searchView })
+        {
+            searchView.Cleanup();
+        }
+
         MainTabView.TabItems.Remove(tab);
 
         // If all tabs closed, automatically open a fresh search tab
@@ -430,6 +488,12 @@ public sealed partial class MainWindow : Window
                     NavFrame.Visibility = Visibility.Visible;
                     NavFrame.Navigate(typeof(SavedSearchesView));
                     break;
+                case "favourites":
+                case "favorites":
+                    MainTabView.Visibility = Visibility.Collapsed;
+                    NavFrame.Visibility = Visibility.Visible;
+                    NavFrame.Navigate(typeof(FavouritesView));
+                    break;
                 case "about":
                     MainTabView.Visibility = Visibility.Collapsed;
                     NavFrame.Visibility = Visibility.Visible;
@@ -439,5 +503,10 @@ public sealed partial class MainWindow : Window
                     throw new InvalidOperationException($"Unknown navigation item tag: {item.Tag}");
             }
         }
+    }
+
+    public void NavigateToSettings()
+    {
+        NavView.SelectedItem = NavView.SettingsItem;
     }
 }

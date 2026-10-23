@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using E6Viewer.Models;
-using E6Viewer.ViewModels;
+using View621.Models;
+using View621.ViewModels;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class SavedSearchesView : Page
 {

@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="E6Viewer.Views.PostView"
+    x:Class="View621.Views.PostView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:E6Viewer.Models"
+    xmlns:models="using:View621.Models"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:sys="using:System"
     mc:Ignorable="d">
@@ -271,11 +271,72 @@
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind Post.FileSizeFormatted, Mode=OneTime}" />
 
                                 <TextBlock Grid.Row="4" Text="Score" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind Post.Score, Mode=OneTime}" />
+                                <TextBlock x:Name="MetadataScoreText" Grid.Row="4" Grid.Column="1" Text="{x:Bind Post.Score, Mode=OneTime}" />
 
                                 <TextBlock Grid.Row="5" Text="Favourites" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{x:Bind Post.FavCount, Mode=OneTime}" />
+                                <TextBlock x:Name="MetadataFavCountText" Grid.Row="5" Grid.Column="1" Text="{x:Bind Post.FavCount, Mode=OneTime}" />
                             </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Post Actions Card (Vote & Favourite) -->
+                    <Border
+                        x:Name="PostActionsCard"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        Padding="14">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Post Actions" FontWeight="SemiBold" FontSize="15" />
+
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Upvote Button -->
+                                <Button
+                                    x:Name="UpvoteButton"
+                                    HorizontalAlignment="Stretch"
+                                    Height="36"
+                                    Click="UpvoteButton_Click"
+                                    ToolTipService.ToolTip="Upvote (Score +1)">
+                                    <FontIcon x:Name="UpvoteIcon" Glyph="&#xE74A;" FontSize="16" HorizontalAlignment="Center" />
+                                </Button>
+
+                                <!-- Downvote Button -->
+                                <Button
+                                    x:Name="DownvoteButton"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Stretch"
+                                    Height="36"
+                                    Click="DownvoteButton_Click"
+                                    ToolTipService.ToolTip="Downvote (Score -1)">
+                                    <FontIcon x:Name="DownvoteIcon" Glyph="&#xE74B;" FontSize="16" HorizontalAlignment="Center" />
+                                </Button>
+
+                                <!-- Favourite / Unfavourite Button -->
+                                <Button
+                                    x:Name="PostFavButton"
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Stretch"
+                                    Height="36"
+                                    Click="PostFavButton_Click"
+                                    ToolTipService.ToolTip="Add to favourites">
+                                    <FontIcon x:Name="PostFavIcon" Glyph="&#xE734;" FontSize="16" HorizontalAlignment="Center" />
+                                </Button>
+                            </Grid>
+
+                            <!-- Inline notice if user is not logged in -->
+                            <InfoBar
+                                x:Name="ActionLoginNotice"
+                                IsOpen="False"
+                                Severity="Informational"
+                                Title="Login required"
+                                Message="Set your username and API key in Settings to vote and favourite posts." />
                         </StackPanel>
                     </Border>
 

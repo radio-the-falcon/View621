@@ -1,7 +1,7 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using System;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Service for managing application theme (Light, Dark, Default) with native Windows 11 integration.

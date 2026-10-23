@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace E6Viewer.Models;
+namespace View621.Models;
 
 /// <summary>
 /// Represents a saved search query bookmarked by the user.

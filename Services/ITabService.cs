@@ -1,7 +1,7 @@
-using System;
-using E6Viewer.Models;
+﻿using System;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 public interface ITabService
 {

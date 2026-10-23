@@ -1,15 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
-using E6Viewer.Models;
-using E6Viewer.Services;
-using PostNavMode = E6Viewer.Models.NavigationMode;
+using View621.Models;
+using View621.Services;
+using PostNavMode = View621.Models.NavigationMode;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class PostView
 {
@@ -99,7 +99,7 @@ public sealed partial class PostView
                 });
             });
         }
-        else if (_navContext.Mode == E6Viewer.Models.NavigationMode.Pool && _navContext.PoolId.HasValue)
+        else if (_navContext.Mode == View621.Models.NavigationMode.Pool && _navContext.PoolId.HasValue)
         {
             hasRelationships = true;
             PoolsSection.Visibility = Visibility.Visible;

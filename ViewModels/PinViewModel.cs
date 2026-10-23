@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.ViewModels;
+namespace View621.ViewModels;
 
 /// <summary>
 /// ViewModel managing pinned posts in PinView, designed to support future custom tagging and sorting.

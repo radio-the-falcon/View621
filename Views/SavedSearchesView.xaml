@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="E6Viewer.Views.SavedSearchesView"
+    x:Class="View621.Views.SavedSearchesView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:E6Viewer.Models"
-    xmlns:vm="using:E6Viewer.ViewModels"
+    xmlns:models="using:View621.Models"
+    xmlns:vm="using:View621.ViewModels"
     mc:Ignorable="d">
 
     <Page.Resources>

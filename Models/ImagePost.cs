@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media;
 
-namespace E6Viewer.Models;
+namespace View621.Models;
 
 /// <summary>
 /// Represents an image post metadata and asset references.
@@ -43,6 +43,20 @@ public partial class ImagePost : ObservableObject
     public Brush BookmarkButtonBackground => IsBookmarked ? PinnedBackgroundBrush : UnpinnedBackgroundBrush;
     public Brush BookmarkButtonBorder => IsBookmarked ? PinnedBorderBrush : UnpinnedBorderBrush;
     public Brush BookmarkIconForeground => IsBookmarked ? PinnedIconBrush : UnpinnedIconBrush;
+
+    private bool _isFavorited;
+    public bool IsFavorited
+    {
+        get => _isFavorited;
+        set => SetProperty(ref _isFavorited, value);
+    }
+
+    private int? _ourScore;
+    public int? OurScore
+    {
+        get => _ourScore;
+        set => SetProperty(ref _ourScore, value);
+    }
 
     public long Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -123,7 +137,7 @@ public partial class ImagePost : ObservableObject
     public string FavouritesText => $"Favourites: {FavCount}";
 
     /// <summary>
-    /// Local cached sample image path on disk if downloaded to ~/.umamiff/cache/images.
+    /// Local cached sample image path on disk if downloaded to ~/.View621/cache/images.
     /// </summary>
     public string? LocalSamplePath { get; set; }
 
@@ -152,7 +166,7 @@ public partial class ImagePost : ObservableObject
             var localPath = LocalSamplePath;
             if (string.IsNullOrWhiteSpace(localPath) || !System.IO.File.Exists(localPath))
             {
-                localPath = E6Viewer.Services.StorageLocations.GetExistingCachedImagePath(Id);
+                localPath = View621.Services.StorageLocations.GetExistingCachedImagePath(Id);
                 if (localPath != null)
                 {
                     LocalSamplePath = localPath;
@@ -182,7 +196,7 @@ public partial class ImagePost : ObservableObject
             var localPath = LocalSamplePath;
             if (string.IsNullOrWhiteSpace(localPath) || !System.IO.File.Exists(localPath))
             {
-                localPath = E6Viewer.Services.StorageLocations.GetExistingCachedImagePath(Id);
+                localPath = View621.Services.StorageLocations.GetExistingCachedImagePath(Id);
                 if (localPath != null)
                 {
                     LocalSamplePath = localPath;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Provides mock data for development and initial UI testing.
@@ -32,7 +32,8 @@ public class MockImageService : IImageService
             ArtistTags = new() { "aurora_artist" },
             CharacterTags = new() { "scenery" },
             SpeciesTags = new() { "landscape" },
-            GeneralTags = new() { "mountain", "sunset", "clouds", "vibrant", "sky" }
+            GeneralTags = new() { "mountain", "sunset", "clouds", "vibrant", "sky" },
+            IsFavorited = true
         },
         new ImagePost
         {
@@ -191,5 +192,60 @@ public class MockImageService : IImageService
     public Task<int?> GetPostCountAsync(string query, CancellationToken cancellationToken = default)
     {
         return Task.FromResult<int?>(SamplePosts.Count);
+    }
+
+    public Task<(bool Success, string Message)> VerifyLoginAsync(string username, string apiKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(apiKey))
+        {
+            return Task.FromResult((false, "Username and API key cannot be empty."));
+        }
+        return Task.FromResult((true, $"Successfully verified mock login for {username}."));
+    }
+
+    public Task<IReadOnlyList<ImagePost>> GetFavoritesAsync(int page = 1, int limit = 40, CancellationToken cancellationToken = default)
+    {
+        var favs = SamplePosts.Where(p => p.IsFavorited).ToList();
+        return Task.FromResult<IReadOnlyList<ImagePost>>(favs);
+    }
+
+    public Task<int?> GetFavoritesCountAsync(CancellationToken cancellationToken = default)
+    {
+        var count = SamplePosts.Count(p => p.IsFavorited);
+        return Task.FromResult<int?>(count);
+    }
+
+    public Task<bool> AddFavoriteAsync(long postId, CancellationToken cancellationToken = default)
+    {
+        var post = SamplePosts.FirstOrDefault(p => p.Id == postId);
+        if (post != null)
+        {
+            post.IsFavorited = true;
+            post.FavCount++;
+        }
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> RemoveFavoriteAsync(long postId, CancellationToken cancellationToken = default)
+    {
+        var post = SamplePosts.FirstOrDefault(p => p.Id == postId);
+        if (post != null)
+        {
+            post.IsFavorited = false;
+            post.FavCount = Math.Max(0, post.FavCount - 1);
+        }
+        return Task.FromResult(true);
+    }
+
+    public Task<(bool Success, int NewScore, int? OurScore)> VotePostAsync(long postId, int score, CancellationToken cancellationToken = default)
+    {
+        var post = SamplePosts.FirstOrDefault(p => p.Id == postId);
+        if (post != null)
+        {
+            post.OurScore = score != 0 ? score : null;
+            post.Score += score;
+            return Task.FromResult((true, post.Score, post.OurScore));
+        }
+        return Task.FromResult((true, score, (int?)score));
     }
 }

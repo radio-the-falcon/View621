@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace E6Viewer.Services.Navigation;
+namespace View621.Services.Navigation;
 
 /// <summary>
 /// Descriptor representing a top-level or tab-capable view mode.

@@ -1,15 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Thread-safe post metadata cache backed by ~/.umamiff/cache/posts.json.
+/// Thread-safe post metadata cache backed by ~/.View621/cache/posts.json.
 /// </summary>
 public class PostCacheService : IPostCacheService
 {

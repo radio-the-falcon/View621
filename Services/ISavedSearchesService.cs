@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Service contract for persisting and managing user saved searches.

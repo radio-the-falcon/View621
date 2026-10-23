@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace E6Viewer.Models;
+namespace View621.Models;
 
 public enum NavigationMode
 {

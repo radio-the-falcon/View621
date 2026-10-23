@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Service managing previous searches history with persistence in ~/.umamiff/search_history.json.
+/// Service managing previous searches history with persistence in ~/.View621/search_history.json.
 /// </summary>
 public interface ISearchHistoryService
 {

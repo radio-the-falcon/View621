@@ -1,54 +1,52 @@
 using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.UI.Xaml;
 
-namespace E6Viewer;
+namespace View621;
 
 /// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
+/// Provides application-specific behaviour to supplement the default Application class.
 /// </summary>
 public partial class App : Application
 {
     public static MainWindow? CurrentWindow { get; private set; }
-    
+
     /// <summary>
-    /// Initializes the singleton application object.
+    /// Initializes the singleton application object. This is the first line of authored code
+    /// executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {
         InitializeComponent();
-
         UnhandledException += App_UnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
     }
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        var msg = $"[WinUI UnhandledException] {e.Message}\n{e.Exception}\n";
-        E6Viewer.Services.StorageLocations.Log(msg);
-        try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
-        Debug.WriteLine($"[WinUI UnhandledException] {e.Message} - {e.Exception}");
-        // Mark as handled to prevent abrupt application crash on image decode or rendering errors
         e.Handled = true;
+        var msg = $"[App UnhandledException] {e.Message}\n{e.Exception}\n";
+        View621.Services.StorageLocations.Log(msg);
+        try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
     }
 
     private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
     {
-        var msg = $"[AppDomain UnhandledException] {e.ExceptionObject}\n";
-        E6Viewer.Services.StorageLocations.Log(msg);
+        var ex = e.ExceptionObject as Exception;
+        var msg = $"[CurrentDomain UnhandledException] {ex?.Message}\n{ex}\n";
+        View621.Services.StorageLocations.Log(msg);
         try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
-        Debug.WriteLine($"[AppDomain UnhandledException] {e.ExceptionObject}");
     }
 
-    private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    /// <summary>
+    /// Global exception handler for TaskScheduler unobserved task exceptions.
+    /// </summary>
+    public static void LogTaskException(object? sender, System.Threading.Tasks.UnobservedTaskExceptionEventArgs e)
     {
-        var msg = $"[TaskScheduler UnobservedTaskException] {e.Exception}\n";
-        E6Viewer.Services.StorageLocations.Log(msg);
-        try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
-        Debug.WriteLine($"[TaskScheduler UnobservedTaskException] {e.Exception}");
         e.SetObserved();
+        var msg = $"[UnobservedTaskException] {e.Exception.Message}\n{e.Exception}\n";
+        View621.Services.StorageLocations.Log(msg);
+        try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
     }
 
     /// <summary>
@@ -59,21 +57,23 @@ public partial class App : Application
         try
         {
             // Ensure ~/.view621 and cache directories exist on first launch
-            E6Viewer.Services.StorageLocations.EnsureDirectories();
+            View621.Services.StorageLocations.EnsureDirectories();
 
             // Register canonical views
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("search", "Search", "\uE721", typeof(E6Viewer.Views.SearchView), IsTabCapable: true, IsNavPaneItem: true));
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("post", "Post", "\uEB9F", typeof(E6Viewer.Views.PostView), IsTabCapable: true, IsNavPaneItem: false));
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("pinned", "Pinned", "\uE718", typeof(E6Viewer.Views.PinView), IsTabCapable: false, IsNavPaneItem: true));
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("saved", "Saved Searches", "\uE74E", typeof(E6Viewer.Views.SavedSearchesView), IsTabCapable: false, IsNavPaneItem: true));
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("settings", "Settings", "\uE713", typeof(E6Viewer.Views.SettingsView), IsTabCapable: false, IsNavPaneItem: true));
-            E6Viewer.Services.Navigation.ViewRegistry.Instance.RegisterView(
-                new E6Viewer.Services.Navigation.ViewDescriptor("about", "About", "\uE946", typeof(E6Viewer.Views.AboutView), IsTabCapable: false, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("search", "Search", "\uE721", typeof(View621.Views.SearchView), IsTabCapable: true, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("post", "Post", "\uEB9F", typeof(View621.Views.PostView), IsTabCapable: true, IsNavPaneItem: false));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("pinned", "Pinned", "\uE718", typeof(View621.Views.PinView), IsTabCapable: false, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("saved", "Saved Searches", "\uE74E", typeof(View621.Views.SavedSearchesView), IsTabCapable: false, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("favourites", "Favourites", "\uE734", typeof(View621.Views.FavouritesView), IsTabCapable: false, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("settings", "Settings", "\uE713", typeof(View621.Views.SettingsView), IsTabCapable: false, IsNavPaneItem: true));
+            View621.Services.Navigation.ViewRegistry.Instance.RegisterView(
+                new View621.Services.Navigation.ViewDescriptor("about", "About", "\uE946", typeof(View621.Views.AboutView), IsTabCapable: false, IsNavPaneItem: true));
 
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
@@ -81,7 +81,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             var msg = $"[OnLaunched Exception] {ex.Message}\n{ex}\n";
-            E6Viewer.Services.StorageLocations.Log(msg);
+            View621.Services.StorageLocations.Log(msg);
             try { System.IO.File.AppendAllText("startup_error.log", msg); } catch { }
             throw;
         }

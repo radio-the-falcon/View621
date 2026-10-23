@@ -8,10 +8,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class PinView : Page
 {
@@ -147,18 +147,12 @@ public sealed partial class PinView : Page
 
     private void ItemContainer_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe && fe.DataContext is ImagePost post)
-        {
-            NavigateToDetail(post);
-        }
+        // Handled by BookmarksItemsView_ItemInvoked
     }
 
     private void Card_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe && fe.DataContext is ImagePost post)
-        {
-            NavigateToDetail(post);
-        }
+        // Handled by BookmarksItemsView_ItemInvoked
     }
 
     private void Card_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -231,7 +225,7 @@ public sealed partial class PinView : Page
 
         return new PostNavigationContext
         {
-            Mode = E6Viewer.Models.NavigationMode.SearchResults,
+            Mode = View621.Models.NavigationMode.SearchResults,
             Posts = postsSnapshot,
             CurrentIndex = index
         };

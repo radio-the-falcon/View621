@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
-/// Centralised paths and directory helpers for Umamiff data storage in ~/.umamiff.
+/// Centralised paths and directory helpers for View621 data storage in ~/.View621.
 /// </summary>
 public static class StorageLocations
 {
@@ -26,47 +26,52 @@ public static class StorageLocations
     }
 
     /// <summary>
-    /// Root datastore directory: ~/.umamiff
+    /// Root datastore directory: ~/.View621
     /// </summary>
-    public static string DataDirectory => Path.Combine(HomeDirectory, ".umamiff");
+    public static string DataDirectory => Path.Combine(HomeDirectory, ".View621");
 
     /// <summary>
-    /// Bookmarks datastore file: ~/.umamiff/bookmarks.json
+    /// Legacy datastore directory ~/.umamiff for backwards compatibility migration.
+    /// </summary>
+    public static string LegacyUmamiffDirectory => Path.Combine(HomeDirectory, ".umamiff");
+
+    /// <summary>
+    /// Bookmarks datastore file: ~/.View621/bookmarks.json
     /// </summary>
     public static string BookmarksFilePath => Path.Combine(DataDirectory, "bookmarks.json");
 
     /// <summary>
-    /// Application settings file: ~/.umamiff/settings.json
+    /// Application settings file: ~/.View621/settings.json
     /// </summary>
     public static string SettingsFilePath => Path.Combine(DataDirectory, "settings.json");
 
     /// <summary>
-    /// Previous search history file: ~/.umamiff/search_history.json
+    /// Previous search history file: ~/.View621/search_history.json
     /// </summary>
     public static string SearchHistoryFilePath => Path.Combine(DataDirectory, "search_history.json");
 
     /// <summary>
-    /// Saved searches datastore file: ~/.umamiff/saved_searches.json
+    /// Saved searches datastore file: ~/.View621/saved_searches.json
     /// </summary>
     public static string SavedSearchesFilePath => Path.Combine(DataDirectory, "saved_searches.json");
 
     /// <summary>
-    /// Cached items directory: ~/.umamiff/cache
+    /// Cached items directory: ~/.View621/cache
     /// </summary>
     public static string CacheDirectory => Path.Combine(DataDirectory, "cache");
 
     /// <summary>
-    /// Cached sample images directory for offline access: ~/.umamiff/cache/images
+    /// Cached sample images directory for offline access: ~/.View621/cache/images
     /// </summary>
     public static string ImageCacheDirectory => Path.Combine(CacheDirectory, "images");
 
     /// <summary>
-    /// Cached posts metadata: ~/.umamiff/cache/posts.json
+    /// Cached posts metadata: ~/.View621/cache/posts.json
     /// </summary>
     public static string CachedPostsFilePath => Path.Combine(CacheDirectory, "posts.json");
 
     /// <summary>
-    /// Application diagnostic log file: ~/.umamiff/app.log
+    /// Application diagnostic log file: ~/.View621/app.log
     /// </summary>
     public static string LogFilePath => Path.Combine(DataDirectory, "app.log");
 
@@ -108,7 +113,8 @@ public static class StorageLocations
     }
 
     /// <summary>
-    /// Ensures that ~/.umamiff, ~/.umamiff/cache, and ~/.umamiff/cache/images directories exist.
+    /// Ensures that ~/.View621, ~/.View621/cache, and ~/.View621/cache/images directories exist,
+    /// migrating any files from legacy ~/.umamiff if present.
     /// </summary>
     public static void EnsureDirectories()
     {
@@ -116,7 +122,29 @@ public static class StorageLocations
         {
             if (!Directory.Exists(DataDirectory))
             {
-                Directory.CreateDirectory(DataDirectory);
+                if (Directory.Exists(LegacyUmamiffDirectory))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(DataDirectory);
+                        foreach (var file in Directory.GetFiles(LegacyUmamiffDirectory))
+                        {
+                            var dest = Path.Combine(DataDirectory, Path.GetFileName(file));
+                            if (!File.Exists(dest))
+                            {
+                                File.Copy(file, dest, overwrite: false);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Fallback
+                    }
+                }
+                else
+                {
+                    Directory.CreateDirectory(DataDirectory);
+                }
             }
             if (!Directory.Exists(CacheDirectory))
             {
@@ -134,7 +162,7 @@ public static class StorageLocations
     }
 
     /// <summary>
-    /// Writes diagnostic messages to ~/.umamiff/app.log.
+    /// Writes diagnostic messages to ~/.View621/app.log.
     /// </summary>
     public static void Log(string message)
     {

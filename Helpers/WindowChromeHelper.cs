@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.UI.Windowing;
@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
-namespace E6Viewer.Helpers;
+namespace View621.Helpers;
 
 /// <summary>
 /// Encapsulates native Win32 and WinUI window decoration, icon assignment, system backdrops, and title bar styling.

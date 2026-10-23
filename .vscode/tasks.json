@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/E6Viewer.csproj",
+        "${workspaceFolder}/View621.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -23,7 +23,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/E6Viewer.csproj",
+        "${workspaceFolder}/View621.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -37,7 +37,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/E6Viewer.csproj"
+        "${workspaceFolder}/View621.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

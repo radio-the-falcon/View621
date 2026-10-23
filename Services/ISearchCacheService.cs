@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using E6Viewer.Models;
+﻿using System.Collections.Generic;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Service responsible for caching search query results to minimise network API calls.

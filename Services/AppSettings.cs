@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Text.Json;
+using View621.Helpers;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Application settings and persistent preferences.
@@ -10,6 +12,8 @@ namespace E6Viewer.Services;
 public static class AppSettings
 {
     public static event EventHandler? SettingsChanged;
+    public static event EventHandler? FilterSettingsChanged;
+    public static event EventHandler? LoginStateChanged;
     public static event EventHandler? SearchHistoryChanged
     {
         add => SearchHistoryService.Instance.HistoryChanged += value;
@@ -63,6 +67,7 @@ public static class AppSettings
                 _pageSize = value;
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
+                FilterSettingsChanged?.Invoke(null, EventArgs.Empty);
             }
         }
     }
@@ -77,6 +82,7 @@ public static class AppSettings
                 _username = value;
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
+                LoginStateChanged?.Invoke(null, EventArgs.Empty);
             }
         }
     }
@@ -91,9 +97,15 @@ public static class AppSettings
                 _apiKey = value;
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
+                LoginStateChanged?.Invoke(null, EventArgs.Empty);
             }
         }
     }
+
+    /// <summary>
+    /// Indicates whether credentials (username and API key) are present.
+    /// </summary>
+    public static bool IsLoggedIn => !string.IsNullOrWhiteSpace(_username) && !string.IsNullOrWhiteSpace(_apiKey);
 
     /// <summary>
     /// Show gender filter: "All", "Male" (appends -female), "Female" (appends -male)
@@ -108,8 +120,18 @@ public static class AppSettings
                 _showGender = value;
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
+                FilterSettingsChanged?.Invoke(null, EventArgs.Empty);
             }
         }
+    }
+
+    /// <summary>
+    /// Backward compatibility alias for ShowGender
+    /// </summary>
+    public static string ShowSex
+    {
+        get => ShowGender;
+        set => ShowGender = value;
     }
 
     /// <summary>
@@ -125,6 +147,7 @@ public static class AppSettings
                 _ratingFilter = value;
                 SaveSettings();
                 SettingsChanged?.Invoke(null, EventArgs.Empty);
+                FilterSettingsChanged?.Invoke(null, EventArgs.Empty);
             }
         }
     }
@@ -196,7 +219,15 @@ public static class AppSettings
         }
     }
 
-    public static System.Collections.Generic.IReadOnlyList<string> SearchHistory => SearchHistoryService.Instance.GetHistory();
+    public static System.Collections.Generic.IReadOnlyList<string> SearchHistory
+    {
+        get
+        {
+            var list = SearchHistoryService.Instance.GetHistory();
+            if (list.Count > 0) return list;
+            return _searchHistory.AsReadOnly();
+        }
+    }
 
     public static void AddSearchToHistory(string query)
     {
@@ -213,12 +244,17 @@ public static class AppSettings
         SearchHistoryService.Instance.ClearHistory();
     }
 
+    private static string? EncryptSecret(string? plainText) => DpapiHelper.Encrypt(plainText);
+
+    private static string? DecryptSecret(string? cipherText) => DpapiHelper.Decrypt(cipherText);
+
     private class SettingsData
     {
         public string? ApiBaseUrl { get; set; }
         public int PageSize { get; set; } = 40;
         public string? Username { get; set; }
-        public string? ApiKey { get; set; }
+        public string? EncryptedApiKey { get; set; }
+        public string? ApiKey { get; set; } // Backward compatibility migration
         public string? ShowGender { get; set; }
         public string? ShowSex { get; set; } // Backward compatibility
         public string? RatingFilter { get; set; }
@@ -236,9 +272,14 @@ public static class AppSettings
         {
             StorageLocations.EnsureDirectories();
 
+            var legacyUmamiffSettings = Path.Combine(StorageLocations.LegacyUmamiffDirectory, "settings.json");
             var filePathToLoad = File.Exists(SettingsFilePath)
                 ? SettingsFilePath
-                : (File.Exists(StorageLocations.LegacySettingsFilePath) ? StorageLocations.LegacySettingsFilePath : null);
+                : (File.Exists(legacyUmamiffSettings)
+                    ? legacyUmamiffSettings
+                    : (File.Exists(StorageLocations.LegacySettingsFilePath) ? StorageLocations.LegacySettingsFilePath : null));
+
+            var needsMigrationSave = false;
 
             if (filePathToLoad != null)
             {
@@ -249,7 +290,22 @@ public static class AppSettings
                     _apiBaseUrl = "https://e621.net"; // Always e621.net
                     if (data.PageSize > 0) _pageSize = data.PageSize;
                     if (data.Username != null) _username = data.Username;
-                    if (data.ApiKey != null) _apiKey = data.ApiKey;
+
+                    // Decrypt API key via Windows DPAPI, or migrate from legacy plain-text
+                    if (!string.IsNullOrWhiteSpace(data.EncryptedApiKey))
+                    {
+                        var decrypted = DecryptSecret(data.EncryptedApiKey);
+                        if (decrypted != null)
+                        {
+                            _apiKey = decrypted;
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(data.ApiKey))
+                    {
+                        _apiKey = data.ApiKey;
+                        needsMigrationSave = true; // Migrate plain-text key to DPAPI encrypted format
+                    }
+
                     if (!string.IsNullOrWhiteSpace(data.ShowGender)) _showGender = data.ShowGender;
                     else if (!string.IsNullOrWhiteSpace(data.ShowSex)) _showGender = data.ShowSex;
                     if (!string.IsNullOrWhiteSpace(data.RatingFilter)) _ratingFilter = data.RatingFilter;
@@ -265,12 +321,18 @@ public static class AppSettings
                 }
             }
 
-            // Also check standalone search_history.json in ~/.umamiff if present
-            if (File.Exists(StorageLocations.SearchHistoryFilePath))
+            // Also check standalone search_history.json in ~/.View621 or legacy ~/.umamiff if present
+            var historyPath = File.Exists(StorageLocations.SearchHistoryFilePath)
+                ? StorageLocations.SearchHistoryFilePath
+                : (File.Exists(Path.Combine(StorageLocations.LegacyUmamiffDirectory, "search_history.json"))
+                    ? Path.Combine(StorageLocations.LegacyUmamiffDirectory, "search_history.json")
+                    : null);
+
+            if (historyPath != null)
             {
                 try
                 {
-                    var historyJson = File.ReadAllText(StorageLocations.SearchHistoryFilePath);
+                    var historyJson = File.ReadAllText(historyPath);
                     var historyData = JsonSerializer.Deserialize<System.Collections.Generic.List<string>>(historyJson);
                     if (historyData != null && historyData.Count > 0)
                     {
@@ -289,8 +351,8 @@ public static class AppSettings
                 }
             }
 
-            // If we migrated from legacy path, immediately save to ~/.umamiff
-            if (filePathToLoad == StorageLocations.LegacySettingsFilePath)
+            // If we migrated from legacy path or need to encrypt legacy plain-text key, immediately save
+            if (filePathToLoad != SettingsFilePath || needsMigrationSave)
             {
                 SaveSettings();
             }
@@ -312,7 +374,8 @@ public static class AppSettings
                 ApiBaseUrl = _apiBaseUrl,
                 PageSize = _pageSize,
                 Username = _username,
-                ApiKey = _apiKey,
+                EncryptedApiKey = EncryptSecret(_apiKey),
+                ApiKey = null, // Never persist in plain text!
                 ShowGender = _showGender,
                 RatingFilter = _ratingFilter,
                 BackdropKind = _backdropKind,
@@ -326,7 +389,7 @@ public static class AppSettings
             var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(SettingsFilePath, json);
 
-            // Also persist previous searches in ~/.umamiff/search_history.json
+            // Also persist previous searches in ~/.View621/search_history.json
             var historyJson = JsonSerializer.Serialize(_searchHistory, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(StorageLocations.SearchHistoryFilePath, historyJson);
         }

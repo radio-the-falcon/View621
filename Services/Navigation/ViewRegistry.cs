@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace E6Viewer.Services.Navigation;
+namespace View621.Services.Navigation;
 
 /// <summary>
-/// Central registry of view modes in Umamiff.
+/// Central registry of view modes in View621.
 /// </summary>
 public class ViewRegistry : IViewRegistry
 {

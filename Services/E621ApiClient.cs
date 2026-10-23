@@ -7,9 +7,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using E6Viewer.Models;
+using View621.Models;
 
-namespace E6Viewer.Services;
+namespace View621.Services;
 
 /// <summary>
 /// Production API client for e621 / e926 following the OpenAPI specification.
@@ -26,7 +26,7 @@ public class E621ApiClient : IImageService
         };
         // E621 / e926 API strictly requires a clean descriptive User-Agent header
         client.DefaultRequestHeaders.UserAgent.Clear();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("E6Viewer/1.0 (by e6_viewer_user on e621)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("View621/1.0 (by View621_user on e621)");
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }
@@ -294,6 +294,7 @@ public class E621ApiClient : IImageService
             Rating = rating,
             Score = dto.Score?.Total ?? 0,
             FavCount = dto.FavCount,
+            IsFavorited = dto.IsFavorited,
             Width = dto.File?.Width ?? dto.Sample?.Width ?? 0,
             Height = dto.File?.Height ?? dto.Sample?.Height ?? 0,
             FileExtension = dto.File?.Ext ?? "jpg",
@@ -328,5 +329,264 @@ public class E621ApiClient : IImageService
             size /= 1024;
         }
         return $"{size:0.#} {units[order]}";
+    }
+
+    public async Task<(bool Success, string Message)> VerifyLoginAsync(string username, string apiKey, CancellationToken cancellationToken = default)
+    {
+        var cleanUser = username?.Trim() ?? string.Empty;
+        var cleanKey = apiKey?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(cleanUser) || string.IsNullOrWhiteSpace(cleanKey))
+        {
+            return (false, "Username and API key must not be empty.");
+        }
+
+        try
+        {
+            var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/favorites.json?limit=1");
+            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{cleanUser}:{cleanKey}"));
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
+
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, $"Logged in successfully as {cleanUser}.");
+            }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return (false, "Invalid username or API key.");
+            }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                return (false, "Access forbidden. Ensure API access is enabled on your e621 account.");
+            }
+
+            return (false, $"Verification failed (HTTP {(int)response.StatusCode} {response.ReasonPhrase}).");
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Verification request timed out.");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Connection error: {ex.Message}");
+        }
+    }
+
+    public async Task<IReadOnlyList<ImagePost>> GetFavoritesAsync(int page = 1, int limit = 40, CancellationToken cancellationToken = default)
+    {
+        if (!AppSettings.IsLoggedIn || string.IsNullOrWhiteSpace(AppSettings.Username))
+        {
+            return Array.Empty<ImagePost>();
+        }
+
+        var effectiveLimit = Math.Clamp(limit, 1, 320);
+        var effectivePage = Math.Clamp(page, 1, 750);
+        var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+
+        // Strategy 1: Attempt direct /favorites.json
+        try
+        {
+            var url = $"{baseUrl}/favorites.json?limit={effectiveLimit}&page={effectivePage}";
+            using var request = CreateRequest(HttpMethod.Get, url);
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                var result = await JsonSerializer.DeserializeAsync<E621PostsResponse>(stream, cancellationToken: cancellationToken);
+                if (result?.Posts != null && result.Posts.Count > 0)
+                {
+                    return result.Posts.Select(MapToImagePost).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            StorageLocations.Log($"[E621ApiClient] /favorites.json query failed: {ex.Message}");
+        }
+
+        // Strategy 2: Standard e621 tag search /posts.json?tags=fav:{username}
+        return await SearchPostsAsync($"fav:{AppSettings.Username}", effectivePage, effectiveLimit, cancellationToken);
+    }
+
+    public async Task<int?> GetFavoritesCountAsync(CancellationToken cancellationToken = default)
+    {
+        if (!AppSettings.IsLoggedIn)
+        {
+            return null;
+        }
+
+        var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+
+        // Strategy 1: Check /users/me.json (direct authenticated user profile)
+        try
+        {
+            var meUrl = $"{baseUrl}/users/me.json";
+            using var meRequest = CreateRequest(HttpMethod.Get, meUrl);
+            using var meResponse = await HttpClient.SendAsync(meRequest, cancellationToken);
+            if (meResponse.IsSuccessStatusCode)
+            {
+                await using var stream = await meResponse.Content.ReadAsStreamAsync(cancellationToken);
+                using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+                var root = doc.RootElement;
+                if (root.ValueKind == JsonValueKind.Object)
+                {
+                    if (root.TryGetProperty("favorite_count", out var favCountProp) && favCountProp.TryGetInt32(out var favCount))
+                    {
+                        return favCount;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            StorageLocations.Log($"[E621ApiClient] /users/me.json count query failed: {ex.Message}");
+        }
+
+        // Strategy 2: Check /users.json?search[name_matches]={username}
+        if (!string.IsNullOrWhiteSpace(AppSettings.Username))
+        {
+            try
+            {
+                var userUrl = $"{baseUrl}/users.json?search[name_matches]={Uri.EscapeDataString(AppSettings.Username.Trim())}";
+                using var request = CreateRequest(HttpMethod.Get, userUrl);
+                using var response = await HttpClient.SendAsync(request, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                {
+                    await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                    using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+                    var root = doc.RootElement;
+                    JsonElement? userElement = null;
+
+                    if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
+                    {
+                        userElement = root[0];
+                    }
+                    else if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("users", out var usersArr) && usersArr.ValueKind == JsonValueKind.Array && usersArr.GetArrayLength() > 0)
+                    {
+                        userElement = usersArr[0];
+                    }
+
+                    if (userElement.HasValue && userElement.Value.TryGetProperty("favorite_count", out var countProp) && countProp.TryGetInt32(out var count))
+                    {
+                        return count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StorageLocations.Log($"[E621ApiClient] /users.json count query failed: {ex.Message}");
+            }
+        }
+
+        // Strategy 3: Check /favorites.json or /posts.json?tags=fav:{username}&limit=320
+        try
+        {
+            var favs = await GetFavoritesAsync(page: 1, limit: 320, cancellationToken);
+            if (favs != null)
+            {
+                return favs.Count;
+            }
+        }
+        catch (Exception ex)
+        {
+            StorageLocations.Log($"[E621ApiClient] GetFavoritesAsync count query failed: {ex.Message}");
+        }
+
+        return null;
+    }
+
+    public async Task<bool> AddFavoriteAsync(long postId, CancellationToken cancellationToken = default)
+    {
+        if (postId <= 0) return false;
+        if (!AppSettings.IsLoggedIn) return false;
+
+        try
+        {
+            var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+            var url = $"{baseUrl}/favorites.json";
+            using var request = CreateRequest(HttpMethod.Post, url);
+            request.Content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("post_id", postId.ToString())
+            });
+
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+
+            // 422 indicates already favorited on e621
+            if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> RemoveFavoriteAsync(long postId, CancellationToken cancellationToken = default)
+    {
+        if (postId <= 0) return false;
+        if (!AppSettings.IsLoggedIn) return false;
+
+        try
+        {
+            var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+            var url = $"{baseUrl}/favorites/{postId}.json";
+            using var request = CreateRequest(HttpMethod.Delete, url);
+
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<(bool Success, int NewScore, int? OurScore)> VotePostAsync(long postId, int score, CancellationToken cancellationToken = default)
+    {
+        if (postId <= 0) return (false, 0, null);
+        if (!AppSettings.IsLoggedIn) return (false, 0, null);
+
+        try
+        {
+            var baseUrl = AppSettings.ApiBaseUrl.TrimEnd('/');
+            var url = $"{baseUrl}/posts/{postId}/votes.json";
+            using var request = CreateRequest(HttpMethod.Post, url);
+            request.Content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("score", score.ToString()),
+                new KeyValuePair<string, string>("no_unvote", "false")
+            });
+
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                return (false, 0, null);
+            }
+
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            var voteResult = await JsonSerializer.DeserializeAsync<E621VoteResponseDto>(stream, cancellationToken: cancellationToken);
+
+            var total = voteResult?.Score?.Total ?? 0;
+            var ourScore = voteResult?.OurScore;
+
+            return (true, total, ourScore);
+        }
+        catch
+        {
+            return (false, 0, null);
+        }
     }
 }

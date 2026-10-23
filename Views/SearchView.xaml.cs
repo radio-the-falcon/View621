@@ -2,11 +2,11 @@ using System;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using E6Viewer.Models;
-using E6Viewer.Services;
-using E6Viewer.ViewModels;
+using View621.Models;
+using View621.Services;
+using View621.ViewModels;
 
-namespace E6Viewer.Views;
+namespace View621.Views;
 
 public sealed partial class SearchView : Page
 {
@@ -283,6 +283,11 @@ public sealed partial class SearchView : Page
         }
     }
 
+    public void Cleanup()
+    {
+        ViewModel.Cleanup();
+    }
+
     private void ImagesItemsView_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args)
     {
         if (args.InvokedItem is ImagePost post)
@@ -293,18 +298,12 @@ public sealed partial class SearchView : Page
 
     private void ItemContainer_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe && fe.DataContext is ImagePost post)
-        {
-            NavigateToDetail(post);
-        }
+        // Handled by ImagesItemsView_ItemInvoked
     }
 
     private void Card_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        if (sender is FrameworkElement fe && fe.DataContext is ImagePost post)
-        {
-            NavigateToDetail(post);
-        }
+        // Handled by ImagesItemsView_ItemInvoked
     }
 
     private void Card_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -373,7 +372,7 @@ public sealed partial class SearchView : Page
 
         return new PostNavigationContext
         {
-            Mode = E6Viewer.Models.NavigationMode.SearchResults,
+            Mode = View621.Models.NavigationMode.SearchResults,
             Posts = postsSnapshot,
             CurrentIndex = index
         };

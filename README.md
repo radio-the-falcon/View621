@@ -116,7 +116,7 @@ Output binaries:
 ## Project Structure
 
 ```
-e6_viewer/
+View621/
 ├── Assets/                      # Icons, logos, and splash screen graphics
 ├── Models/
 │   ├── E621Dto.cs               # Strongly-typed JSON DTOs for e621/e926 API responses
@@ -142,7 +142,7 @@ e6_viewer/
 ├── MainWindow.xaml(.cs)         # Root window hosting TitleBar, TabView, and navigation pane
 ├── App.xaml(.cs)                # Application entry point, first-run initialization, and exception handlers
 ├── app.manifest                 # Windows application manifest (DPI awareness, OS compatibility)
-└── E6Viewer.csproj              # Project and single-file build configuration
+└── View621.csproj               # Project and single-file build configuration
 ```
 
 ---

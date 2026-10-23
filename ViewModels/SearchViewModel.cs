@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using E6Viewer.Models;
-using E6Viewer.Services;
+using View621.Models;
+using View621.Services;
 
-namespace E6Viewer.ViewModels;
+namespace View621.ViewModels;
 
 public partial class SearchViewModel : ObservableObject
 {
@@ -193,8 +193,24 @@ public partial class SearchViewModel : ObservableObject
         SortKey = AppSettings.LastSortKey;
         IsSortReversed = AppSettings.IsSortReversed;
 
-        AppSettings.SettingsChanged += (_, _) => _ = SearchAsync(resetPage: true, forceRefresh: true);
-        BookmarkService.Instance.BookmarksChanged += (_, _) => SyncBookmarkStates();
+        AppSettings.FilterSettingsChanged += OnFilterSettingsChanged;
+        BookmarkService.Instance.BookmarksChanged += OnBookmarksChanged;
+    }
+
+    private void OnFilterSettingsChanged(object? sender, EventArgs e)
+    {
+        _ = SearchAsync(resetPage: true, forceRefresh: true);
+    }
+
+    private void OnBookmarksChanged(object? sender, EventArgs e)
+    {
+        SyncBookmarkStates();
+    }
+
+    public void Cleanup()
+    {
+        AppSettings.FilterSettingsChanged -= OnFilterSettingsChanged;
+        BookmarkService.Instance.BookmarksChanged -= OnBookmarksChanged;
     }
 
     public void SyncBookmarkStates()

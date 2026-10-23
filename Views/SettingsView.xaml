@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="E6Viewer.Views.SettingsView"
+    x:Class="View621.Views.SettingsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -84,6 +84,7 @@
             <!-- Authentication Section -->
             <StackPanel Spacing="6">
                 <TextBlock Text="Account &amp; API Credentials (Optional)" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="Credentials are encrypted securely on disk using Windows DPAPI." FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
                 <controls:SettingsCard
                     Header="Username"
                     Description="Your username on e621 / e926">
@@ -101,6 +102,23 @@
                     </controls:SettingsCard.HeaderIcon>
                     <PasswordBox x:Name="ApiKeyPasswordBox" Width="220" PasswordChanged="ApiKeyPasswordBox_PasswordChanged" PlaceholderText="API Key" />
                 </controls:SettingsCard>
+
+                <controls:SettingsCard
+                    Header="Verify Credentials"
+                    Description="Test your username and API key against the e621 API">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE939;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <ProgressRing x:Name="VerifyProgressRing" Width="18" Height="18" IsActive="False" Visibility="Collapsed" />
+                        <Button x:Name="VerifyLoginButton" Content="Verify login" Click="VerifyLoginButton_Click" />
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <InfoBar
+                    x:Name="LoginStatusInfoBar"
+                    IsOpen="False"
+                    Margin="0,4,0,0" />
             </StackPanel>
 
             <!-- Data & Storage Section -->
@@ -108,7 +126,7 @@
                 <TextBlock Text="Data &amp; Storage" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <controls:SettingsCard
                     Header="Data Location"
-                    Description="Local storage for cache, bookmarks, settings, and logs (~/.umamiff)">
+                    Description="Local storage for cache, bookmarks, settings, and logs (~/.View621)">
                     <controls:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED25;" />
                     </controls:SettingsCard.HeaderIcon>
