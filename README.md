@@ -2,6 +2,8 @@
 
 **View621** is a native, unpackaged Windows 10 & 11 desktop client designed for browsing, searching, and managing content from **e621**. Built with **WinUI 3** and **.NET 10**, it provides a fluent, modern user experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, native media streaming, local offline caching, Windows DPAPI credential protection, and account integration for voting and favourites.
 
+*Note:* This is a vibe-coded app made using Google Antigravity V2. If you don't like the idea of vibe-coded apps, don't use it. I made this because I wanted a viewer for E6 on desktop instead of using the website, with features similar to The Wolfs Stash app on Android and ios.
+
 ---
 
 ## Key Features
