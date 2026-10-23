@@ -1,6 +1,7 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">WinExe</OutputType>
+    <OutputType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">Exe</OutputType>
     <!-- Base desktop target that can be built on Linux/Windows -->
     <TargetFrameworks>net10.0-desktop</TargetFrameworks>
     <!-- On macOS, include Mac Catalyst -->
@@ -12,7 +13,7 @@
     <RootNamespace>E6Viewer</RootNamespace>
     <ApplicationManifest Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
-    <Platforms>x86;x64;ARM64</Platforms>
+    <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">win-$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant())</RuntimeIdentifier>
     <PublishProfile Condition="Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
     <UseWinUI Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</UseWinUI>
@@ -22,9 +23,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-arm64' Or '$(Platform)' == 'ARM64'">View621_arm</AssemblyName>
-    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x86' Or '$(Platform)' == 'x86'">View621_x86</AssemblyName>
-    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(Platform)' == 'x64'">View621_x86</AssemblyName>
-    <AssemblyName Condition="'$(AssemblyName)' == ''">View621_x86</AssemblyName>
+    <AssemblyName Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(Platform)' == 'x64'">View621_x64</AssemblyName>
+    <AssemblyName Condition="'$(AssemblyName)' == ''">View621_x64</AssemblyName>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 

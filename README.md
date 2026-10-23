@@ -100,7 +100,7 @@ dotnet run --no-build -c Debug
 To generate a standalone `.exe` that runs anywhere without requiring external dependencies, pre-installed runtimes, or neighbouring DLLs:
 
 ```powershell
-# For x64 / x86 (generates View621_x86.exe)
+# For x64 (generates View621_x64.exe)
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
 # For ARM64 (generates View621_arm.exe)
@@ -108,7 +108,7 @@ dotnet publish -c Release -r win-arm64 --self-contained true -p:PublishSingleFil
 ```
 
 Output binaries:
-- `bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\View621_x86.exe`
+- `bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\View621_x64.exe`
 - `bin\Release\net10.0-windows10.0.26100.0\win-arm64\publish\View621_arm.exe`
 
 ---
