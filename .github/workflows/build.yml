@@ -22,11 +22,11 @@ jobs:
           - arch: x64
             rid: win-x64
             platform: x64
-            artifact_name: View621-win-x64
+            exe_name: View621_x64
           - arch: arm64
             rid: win-arm64
             platform: ARM64
-            artifact_name: View621-win-arm64
+            exe_name: View621_arm
 
     steps:
       - name: Checkout repository
@@ -38,7 +38,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore View621.csproj -r ${{ matrix.rid }}
+        run: dotnet restore View621.csproj -r ${{ matrix.rid }} -p:Platform=${{ matrix.platform }} -p:PublishReadyToRun=false
 
       - name: Publish application
         run: >
@@ -46,19 +46,24 @@ jobs:
           -c Release
           -r ${{ matrix.rid }}
           -p:Platform=${{ matrix.platform }}
+          -p:PublishReadyToRun=false
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:IncludeAllContentForSelfExtract=true
           --no-restore
-          -o ./publish/${{ matrix.artifact_name }}
+          -o ./publish/${{ matrix.exe_name }}
 
-      - name: Archive build output to ZIP
+      - name: Prepare Standalone Executable
         shell: pwsh
         run: |
-          Compress-Archive -Path "./publish/${{ matrix.artifact_name }}/*" -DestinationPath "./${{ matrix.artifact_name }}.zip" -Force
+          New-Item -ItemType Directory -Path "./artifacts" -Force
+          Copy-Item "./publish/${{ matrix.exe_name }}/${{ matrix.exe_name }}.exe" "./artifacts/${{ matrix.exe_name }}.exe" -Force
 
-      - name: Upload build artifact
+      - name: Upload Single Executable Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ./${{ matrix.artifact_name }}.zip
+          name: ${{ matrix.exe_name }}
+          path: ./artifacts/${{ matrix.exe_name }}.exe
           if-no-files-found: error
 
   release:
@@ -77,12 +82,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./release-artifacts
+          merge-multiple: true
 
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ github.ref_name }}" \
-            ./release-artifacts/*/*.zip \
+            ./release-artifacts/*.exe \
             --title "View621 ${{ github.ref_name }}" \
             --generate-notes
