@@ -73,8 +73,16 @@ jobs:
           path: ./artifacts/linux-x64
 
   build-macos:
-    name: Build macOS (Mac Catalyst)
+    name: Build macOS (Desktop Skia ${{ matrix.arch }})
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-arm64
+            arch: arm64
+          - rid: osx-x64
+            arch: x64
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -84,17 +92,14 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install Mac Catalyst Workload
-        run: dotnet workload install maccatalyst
-
       - name: Restore Dependencies
-        run: dotnet restore E6Viewer.csproj -r maccatalyst-arm64
+        run: dotnet restore E6Viewer.csproj -r ${{ matrix.rid }}
 
-      - name: Publish Mac Catalyst (arm64 Apple Silicon)
-        run: dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -f net10.0-maccatalyst --self-contained -p:EnableCodeSigning=false -p:PublishTrimmed=true -p:MtouchLink=None -o ./artifacts/macos-catalyst-arm64
+      - name: Publish macOS (${{ matrix.arch }})
+        run: dotnet publish E6Viewer.csproj -c Release -r ${{ matrix.rid }} -f net10.0-desktop --self-contained -o ./artifacts/macos-${{ matrix.arch }}
 
-      - name: Upload macOS Artifact
+      - name: Upload macOS Artifact (${{ matrix.arch }})
         uses: actions/upload-artifact@v4
         with:
-          name: View621-macOS-Catalyst-arm64
-          path: ./artifacts/macos-catalyst-arm64
+          name: View621-macOS-${{ matrix.arch }}
+          path: ./artifacts/macos-${{ matrix.arch }}

@@ -8,6 +8,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <CupertinoResources xmlns="using:Uno.Cupertino" />
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
 

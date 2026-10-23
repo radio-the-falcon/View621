@@ -74,10 +74,9 @@ All application data is cleanly isolated in `~/.view621` (`C:\Users\<User>\.view
 - **UI Framework**: [Uno Platform](https://platform.uno/) with WinUI 3 (Windows App SDK on Windows, Skia Desktop on Linux, and Mac Catalyst on macOS)
 - **Runtime**: .NET 10
   - Windows: `net10.0-windows10.0.26100.0` (x64, ARM64)
-  - Linux: `net10.0-desktop` (x64)
-  - macOS: `net10.0-maccatalyst` (ARM64 Apple Silicon)
+  - Linux & macOS: `net10.0-desktop` (Skia Desktop for Linux x64 and macOS ARM64 / x64)
 - **Architectural Pattern**: MVVM using CommunityToolkit MVVM (`ObservableObject`, `RelayCommand`, service abstractions)
-- **Styling**: Windows 11 Fluent Design System with Mica and Desktop Acrylic backdrops (with graceful cross-platform fallbacks)
+- **Styling**: Windows 11 Fluent Design System with Mica/Acrylic backdrops on Windows, and Uno Cupertino Apple-inspired design styling
 - **API Client**: Anonymous e621 / e926 REST API integration with automated pagination and search suggestion debouncing
 
 ---
@@ -86,7 +85,6 @@ All application data is cleanly isolated in `~/.view621` (`C:\Users\<User>\.view
 
 ### Prerequisites
 - **.NET 10 SDK** (or later)
-- For macOS Mac Catalyst builds: `dotnet workload install maccatalyst`
 
 ### Windows (Debug)
 From PowerShell in the repository root:
@@ -116,10 +114,13 @@ dotnet publish E6Viewer.csproj -c Release -r win-arm64 -f net10.0-windows10.0.26
 dotnet publish E6Viewer.csproj -c Release -r linux-x64 -f net10.0-desktop --self-contained -o ./artifacts/linux-x64
 ```
 
-#### macOS (Mac Catalyst ARM64)
+#### macOS (Desktop Skia ARM64 & x64)
 ```bash
-# Build and publish macOS Catalyst application
-dotnet publish E6Viewer.csproj -c Release -r maccatalyst-arm64 -f net10.0-maccatalyst --self-contained -p:EnableCodeSigning=false -o ./artifacts/macos-catalyst-arm64
+# Build and publish macOS Apple Silicon (ARM64)
+dotnet publish E6Viewer.csproj -c Release -r osx-arm64 -f net10.0-desktop --self-contained -o ./artifacts/macos-arm64
+
+# Build and publish macOS Intel (x64)
+dotnet publish E6Viewer.csproj -c Release -r osx-x64 -f net10.0-desktop --self-contained -o ./artifacts/macos-x64
 ```
 
 ---
@@ -138,11 +139,8 @@ e6_viewer/
 │   ├── PostNavigationContext.cs # Carries sequential navigation state across tabs
 │   └── SavedSearchEntry.cs      # Pinned search query model
 ├── Platforms/
-│   ├── Desktop/
-│   │   └── Program.cs           # Skia Desktop entry point (Linux / macOS / X11)
-│   └── MacCatalyst/
-│       ├── Info.plist           # Apple Catalyst application metadata
-│       └── Main.cs              # UIKit native entry point
+│   └── Desktop/
+│       └── Program.cs           # Skia Desktop entry point (Linux / macOS / X11)
 ├── Services/
 │   ├── AppSettings.cs           # Settings persistence manager (~/.view621/settings.json)
 │   ├── BookmarkService.cs       # Bookmark storage and cached post catalogue manager
