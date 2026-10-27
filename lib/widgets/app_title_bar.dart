@@ -52,10 +52,12 @@ class _AppTitleBarState extends State<AppTitleBar> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final theme = FluentTheme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final titleBarColor = isDark ? const Color(0xFF202020) : const Color(0xFFF3F3F3);
 
     return Container(
       height: 40,
-      color: theme.scaffoldBackgroundColor,
+      color: titleBarColor,
       child: Row(
         children: [
           if (widget.onTogglePane != null)

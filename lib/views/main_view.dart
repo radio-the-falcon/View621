@@ -48,18 +48,24 @@ class _MainViewState extends State<MainView> {
         break;
     }
 
-    return Column(
-      children: [
-        // App Title Bar
-        AppTitleBar(
-          onTogglePane: () {
-            setState(() => _isPaneOpen = !_isPaneOpen);
-          },
-        ),
+    final theme = FluentTheme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final baseBgColor = isDark ? const Color(0xFF202020) : const Color(0xFFF3F3F3);
 
-        // Main Navigation View
-        Expanded(
-          child: NavigationView(
+    return Container(
+      color: baseBgColor,
+      child: Column(
+        children: [
+          // App Title Bar
+          AppTitleBar(
+            onTogglePane: () {
+              setState(() => _isPaneOpen = !_isPaneOpen);
+            },
+          ),
+
+          // Main Navigation View
+          Expanded(
+            child: NavigationView(
             pane: NavigationPane(
               selected: _selectedNavIndex,
               displayMode: _isPaneOpen ? PaneDisplayMode.expanded : PaneDisplayMode.compact,
@@ -147,10 +153,14 @@ class _MainViewState extends State<MainView> {
           ),
         ),
       ],
+      ),
     );
   }
 
   Widget _buildTabView(BuildContext context, MainViewModel vm) {
+    final theme = FluentTheme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return TabView(
       currentIndex: vm.activeTabIndex,
       onChanged: (index) => vm.setActiveTabIndex(index),
@@ -160,9 +170,50 @@ class _MainViewState extends State<MainView> {
       },
       tabs: List.generate(vm.tabs.length, (index) {
         final tab = vm.tabs[index];
+        final isSelected = index == vm.activeTabIndex;
+
         return Tab(
-          text: Text(tab.title),
-          icon: Icon(tab.icon, size: 14),
+          text: Text(
+            tab.title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected
+                  ? (isDark ? Colors.white : const Color(0xFF1B1B1B))
+                  : (isDark ? const Color(0xFFA0A0A0) : const Color(0xFF5C5C5C)),
+            ),
+          ),
+          icon: Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Icon(
+              tab.icon,
+              size: 14,
+              color: isSelected
+                  ? theme.accentColor
+                  : (isDark ? const Color(0xFF888888) : const Color(0xFF707070)),
+            ),
+          ),
+          selectedBackgroundColor: WidgetStateColor.resolveWith((states) {
+            return isDark ? const Color(0xFF2C2C2C) : Colors.white;
+          }),
+          backgroundColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.hovered)) {
+              return isDark ? const Color(0xFF272727) : const Color(0xFFE2E2E2);
+            }
+            return isDark ? const Color(0xFF1E1E1E) : const Color(0xFFEBEBEB);
+          }),
+          outlineColor: WidgetStateColor.resolveWith((states) {
+            return isDark ? const Color(0xFF444444) : const Color(0xFFCCCCCC);
+          }),
+          selectedForegroundColor: WidgetStateColor.resolveWith((states) {
+            return isDark ? Colors.white : const Color(0xFF1B1B1B);
+          }),
+          foregroundColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.hovered)) {
+              return isDark ? Colors.white : const Color(0xFF1B1B1B);
+            }
+            return isDark ? const Color(0xFFA0A0A0) : const Color(0xFF5C5C5C);
+          }),
           body: tab.content,
           onClosed: () => vm.closeTab(index),
         );

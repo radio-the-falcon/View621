@@ -20,7 +20,6 @@ void main() async {
       size: Size(1100, 750),
       minimumSize: Size(800, 600),
       center: true,
-      backgroundColor: Colors.transparent,
       skipTaskbar: false,
       title: 'View621',
       titleBarStyle: TitleBarStyle.hidden,
