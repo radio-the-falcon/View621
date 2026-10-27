@@ -90,19 +90,19 @@ class _MainViewState extends State<MainView> {
                 PaneItem(
                   icon: const Icon(FluentIcons.search),
                   title: const Text('Explore'),
-                  body: _buildTabView(context, vm),
+                  body: const SizedBox.shrink(),
                 ),
                 PaneItem(
                   icon: const Icon(FluentIcons.pin),
                   title: const Text('Pinned'),
                   infoBadge: vm.pinnedCount > 0 ? InfoBadge(source: Text('${vm.pinnedCount}')) : null,
-                  body: const PinView(),
+                  body: const SizedBox.shrink(),
                 ),
                 PaneItem(
                   icon: const Icon(FluentIcons.save),
                   title: const Text('Saved Searches'),
                   infoBadge: vm.savedCount > 0 ? InfoBadge(source: Text('${vm.savedCount}')) : null,
-                  body: const SavedSearchesView(),
+                  body: const SizedBox.shrink(),
                 ),
                 PaneItem(
                   icon: const Icon(FluentIcons.heart),
@@ -110,19 +110,19 @@ class _MainViewState extends State<MainView> {
                   infoBadge: (vm.favouritesCount != null && vm.favouritesCount! > 0)
                       ? InfoBadge(source: Text('${vm.favouritesCount}'))
                       : null,
-                  body: const FavouritesView(),
+                  body: const SizedBox.shrink(),
                 ),
                 PaneItem(
                   icon: const Icon(FluentIcons.info),
                   title: const Text('About'),
-                  body: const AboutView(),
+                  body: const SizedBox.shrink(),
                 ),
               ],
               footerItems: [
                 PaneItem(
                   icon: const Icon(FluentIcons.settings),
                   title: const Text('Settings'),
-                  body: const SettingsView(),
+                  body: const SizedBox.shrink(),
                 ),
                 PaneItemWidgetAdapter(
                   child: _isPaneOpen
@@ -131,6 +131,19 @@ class _MainViewState extends State<MainView> {
                 ),
               ],
             ),
+            paneBodyBuilder: (item, body) {
+              return IndexedStack(
+                index: _selectedNavIndex.clamp(0, 5),
+                children: [
+                  _buildTabView(context, vm),
+                  const PinView(),
+                  const SavedSearchesView(),
+                  const FavouritesView(),
+                  const AboutView(),
+                  const SettingsView(),
+                ],
+              );
+            },
           ),
         ),
       ],

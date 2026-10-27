@@ -19,6 +19,8 @@ class PostViewModel extends ChangeNotifier {
   bool _isLoadingMedia = false;
   List<E621PoolDto> _pools = [];
   bool _isLoadingPools = false;
+  bool _isDisposed = false;
+  bool get isDisposed => _isDisposed;
 
   PostViewModel({required this.post, PostNavigationContext? navigationContext})
       : context = navigationContext ??
@@ -28,6 +30,19 @@ class PostViewModel extends ChangeNotifier {
               currentIndex: 0,
             ) {
     _init();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   bool get isOriginalView => _isOriginalView;

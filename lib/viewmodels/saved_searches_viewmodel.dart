@@ -16,6 +16,8 @@ class SavedSearchesViewModel extends ChangeNotifier {
   final E621ApiClient _apiClient = E621ApiClient();
   final List<SavedSearchRow> _rows = [];
   bool _isLoading = false;
+  bool _isDisposed = false;
+  bool get isDisposed => _isDisposed;
 
   SavedSearchesViewModel() {
     SavedSearchesService.instance.addListener(_onSavedSearchesChanged);
@@ -25,11 +27,19 @@ class SavedSearchesViewModel extends ChangeNotifier {
   List<SavedSearchRow> get rows => List.unmodifiable(_rows);
   bool get isLoading => _isLoading;
 
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
   void _onSavedSearchesChanged() {
     _syncRows();
   }
 
   void _syncRows() {
+    if (_isDisposed) return;
     final entries = SavedSearchesService.instance.savedSearches;
     final existingMap = {for (final r in _rows) r.entry.id: r};
 
@@ -47,15 +57,18 @@ class SavedSearchesViewModel extends ChangeNotifier {
   }
 
   Future<void> _fetchRowPreviews(SavedSearchRow row) async {
+    if (_isDisposed) return;
     row.isLoading = true;
     notifyListeners();
 
     try {
       final posts = await _apiClient.searchPosts(row.entry.effectiveQuery, page: 1, limit: 4);
+      if (_isDisposed) return;
       row.previewPosts = posts;
 
       if (row.entry.cachedCount == null) {
         final count = await _apiClient.getPostCount(row.entry.effectiveQuery);
+        if (_isDisposed) return;
         if (count != null) {
           row.entry.cachedCount = count;
           SavedSearchesService.instance.updateCachedCount(row.entry.effectiveQuery, count);
@@ -63,28 +76,36 @@ class SavedSearchesViewModel extends ChangeNotifier {
       }
     } catch (_) {}
 
-    row.isLoading = false;
-    notifyListeners();
+    if (!_isDisposed) {
+      row.isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> refreshAll() async {
+    if (_isDisposed) return;
     _isLoading = true;
     notifyListeners();
 
     for (final row in _rows) {
+      if (_isDisposed) return;
       await _fetchRowPreviews(row);
     }
 
-    _isLoading = false;
-    notifyListeners();
+    if (!_isDisposed) {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   void removeSavedSearch(String id) {
+    if (_isDisposed) return;
     SavedSearchesService.instance.removeSavedSearch(id);
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     SavedSearchesService.instance.removeListener(_onSavedSearchesChanged);
     super.dispose();
   }

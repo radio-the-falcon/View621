@@ -10,6 +10,8 @@ class FavouritesViewModel extends ChangeNotifier {
   final List<ImagePost> _posts = [];
   bool _isLoading = false;
   String _statusMessage = '';
+  bool _isDisposed = false;
+  bool get isDisposed => _isDisposed;
 
   FavouritesViewModel() {
     loadFavorites();
@@ -20,7 +22,21 @@ class FavouritesViewModel extends ChangeNotifier {
   String get statusMessage => _statusMessage;
   bool get isLoggedIn => AppSettings.instance.isLoggedIn;
 
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   Future<void> loadFavorites() async {
+    if (_isDisposed) return;
     if (!isLoggedIn) {
       _posts.clear();
       notifyListeners();
@@ -33,10 +49,12 @@ class FavouritesViewModel extends ChangeNotifier {
 
     try {
       final results = await _apiClient.getFavorites(page: 1, limit: AppSettings.instance.pageSize);
+      if (_isDisposed) return;
       _posts.clear();
       _posts.addAll(results);
 
       final totalCount = await _apiClient.getFavoritesCount();
+      if (_isDisposed) return;
       if (totalCount != null) {
         FavoritesService.instance.setCount(totalCount);
       } else {
@@ -45,10 +63,13 @@ class FavouritesViewModel extends ChangeNotifier {
 
       _statusMessage = _posts.isEmpty ? 'No favourited posts found.' : '${_posts.length} favourited posts';
     } catch (e) {
+      if (_isDisposed) return;
       _statusMessage = 'Error loading favourites: $e';
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!_isDisposed) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:view621/models/image_post.dart';
 import 'package:view621/services/storage_locations.dart';
 import 'package:view621/viewmodels/main_viewmodel.dart';
+import 'package:view621/viewmodels/search_viewmodel.dart';
 import 'package:view621/views/main_view.dart';
 
 void main() {
@@ -55,5 +56,14 @@ void main() {
 
     expect(find.byType(MainView), findsOneWidget);
     expect(find.byType(NavigationView), findsOneWidget);
+  });
+
+  test('SearchViewModel disposal safety during pending async operations', () async {
+    final vm = SearchViewModel(initialQuery: 'canine');
+    // Dispose immediately while async search is in flight
+    vm.dispose();
+    expect(vm.isDisposed, isTrue);
+    // Calling notifyListeners when disposed should be a safe no-op
+    expect(() => vm.notifyListeners(), returnsNormally);
   });
 }

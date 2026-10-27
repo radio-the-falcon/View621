@@ -25,6 +25,9 @@ class SortOption {
 class SearchViewModel extends ChangeNotifier {
   final E621ApiClient _apiClient = E621ApiClient();
 
+  bool _isDisposed = false;
+  bool get isDisposed => _isDisposed;
+
   String _searchQuery = '';
   bool _isLoading = false;
   String _statusMessage = '';
@@ -192,7 +195,17 @@ class SearchViewModel extends ChangeNotifier {
     search(resetPage: true);
   }
 
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
   Future<void> search({bool resetPage = true, bool forceRefresh = false}) async {
+    if (_isDisposed) return;
+    if (_isLoading) return;
+
     if (resetPage) {
       _currentPage = 1;
     }
@@ -211,6 +224,7 @@ class SearchViewModel extends ChangeNotifier {
 
     try {
       final results = await _apiClient.searchPosts(query, page: _currentPage, limit: limit);
+      if (_isDisposed) return;
       _posts.clear();
       _posts.addAll(results);
 
@@ -223,37 +237,44 @@ class SearchViewModel extends ChangeNotifier {
         _statusMessage = 'Page $_currentPage (${results.length} posts)';
       }
     } catch (e) {
+      if (_isDisposed) return;
       _statusMessage = 'Error loading posts: $e';
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!_isDisposed) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
   void nextPage() {
-    if (!_hasNextPage || _isLoading) return;
+    if (!_hasNextPage || _isLoading || _isDisposed) return;
     _currentPage++;
     search(resetPage: false);
   }
 
   void previousPage() {
-    if (!_hasPreviousPage || _isLoading || _currentPage <= 1) return;
+    if (!_hasPreviousPage || _isLoading || _currentPage <= 1 || _isDisposed) return;
     _currentPage--;
     search(resetPage: false);
   }
 
   void onQueryChanged(String query) {
+    if (_isDisposed) return;
     searchQuery = query;
 
     _suggestDebounce?.cancel();
     _suggestDebounce = Timer(const Duration(milliseconds: 250), () async {
+      if (_isDisposed) return;
       final lastToken = query.trim().split(' ').lastWhere((t) => t.isNotEmpty, orElse: () => '');
       if (lastToken.length >= 2) {
         final suggestions = await _apiClient.autocompleteTags(lastToken);
+        if (_isDisposed) return;
         _tagSuggestions.clear();
         _tagSuggestions.addAll(suggestions);
         notifyListeners();
       } else {
+        if (_isDisposed) return;
         _tagSuggestions.clear();
         notifyListeners();
       }
@@ -261,6 +282,7 @@ class SearchViewModel extends ChangeNotifier {
   }
 
   void selectSuggestion(String suggestion) {
+    if (_isDisposed) return;
     final tokens = _searchQuery.trim().split(' ');
     if (tokens.isNotEmpty) {
       tokens.removeLast();
@@ -273,6 +295,7 @@ class SearchViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _suggestDebounce?.cancel();
     AppSettings.instance.removeListener(_onSettingsChanged);
     BookmarkService.instance.removeListener(syncBookmarkStates);
