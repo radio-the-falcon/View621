@@ -3,9 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 class AppTitleBar extends StatefulWidget {
-  final VoidCallback? onTogglePane;
-
-  const AppTitleBar({super.key, this.onTogglePane});
+  const AppTitleBar({super.key});
 
   @override
   State<AppTitleBar> createState() => _AppTitleBarState();
@@ -60,12 +58,7 @@ class _AppTitleBarState extends State<AppTitleBar> with WindowListener {
       color: titleBarColor,
       child: Row(
         children: [
-          if (widget.onTogglePane != null)
-            IconButton(
-              icon: const Icon(FluentIcons.global_nav_button, size: 16),
-              onPressed: widget.onTogglePane,
-            ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Image.asset(
             'Assets/Square44x44Logo.targetsize-24_altform-unplated.png',
             width: 16,

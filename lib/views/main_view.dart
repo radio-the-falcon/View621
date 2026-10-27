@@ -57,18 +57,25 @@ class _MainViewState extends State<MainView> {
       child: Column(
         children: [
           // App Title Bar
-          AppTitleBar(
-            onTogglePane: () {
-              setState(() => _isPaneOpen = !_isPaneOpen);
-            },
-          ),
+          const AppTitleBar(),
 
           // Main Navigation View
           Expanded(
             child: NavigationView(
+            onDisplayModeChanged: (mode) {
+              final isOpen = mode == PaneDisplayMode.expanded;
+              if (_isPaneOpen != isOpen) {
+                setState(() => _isPaneOpen = isOpen);
+              }
+            },
             pane: NavigationPane(
               selected: _selectedNavIndex,
               displayMode: _isPaneOpen ? PaneDisplayMode.expanded : PaneDisplayMode.compact,
+              toggleButton: PaneToggleButton(
+                onPressed: () {
+                  setState(() => _isPaneOpen = !_isPaneOpen);
+                },
+              ),
               onChanged: (index) {
                 setState(() => _selectedNavIndex = index);
                 switch (index) {
