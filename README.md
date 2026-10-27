@@ -1,8 +1,6 @@
 # View621
 
-**View621** is a native, unpackaged Windows 10 & 11 desktop client designed for browsing, searching, and managing content from **e621**. Built with **WinUI 3** and **.NET 10**, it provides a fluent, modern user experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, native media streaming, local offline caching, Windows DPAPI credential protection, and account integration for voting and favourites.
-
-> *Note:* This is a vibe-coded app made using Google Antigravity V2. If you don't like the idea of vibe-coded apps, don't use it. I made this because I wanted a viewer for E6 on desktop instead of using the website, with features similar to The Wolfs Stash app on Android and ios.
+**View621** is a native Windows desktop client designed for browsing, searching, and managing content from **e621**. Built with **Flutter** and **fluent_ui**, it faithfully replicates the Windows 11 WinUI look and feel, providing a fluent modern experience utilising Windows Mica and Acrylic materials, multi-tab browsing, interactive panning and zooming, hardware-accelerated media streaming, local offline caching, Windows DPAPI credential protection, and account integration for voting and favourites.
 
 ---
 
@@ -12,16 +10,14 @@
 - **Full Tab Management**: Open multiple simultaneous searches and post details in the top tab bar.
 - **New Tab Shortcuts**: Click the `+` button in the tab bar, middle-click any post thumbnail card, or right-click a card and choose **Open in new tab**.
 - **Close & Restore**: Close tabs individually using the `×` button. Closing all tabs automatically opens a clean search tab.
-- **State Preservation**: Tabs preserve active playback, stream buffering, navigation history, and pan/zoom positions when switching tabs.
+- **State Preservation**: Tabs preserve active playback, navigation history, and pan/zoom positions when switching tabs.
 
 ### 🔍 Search & Tag Autocompletion
 - **Keyboard-Friendly Tag Autocomplete**:
   - As you type tags in the search bar, suggestion popups appear dynamically with post counts.
-  - Navigate suggestions smoothly using `Up` and `Down` arrow keys without prematurely overwriting your query text.
-  - Press `Enter` to commit the selected suggestion, or `Escape` to dismiss the autocomplete dropdown.
   - Multi-tag queries separated by space delimiters.
-- **Search History**: Sidebar dropdown displays recent queries with one-click reload and history clearing.
-- **Saved Searches**: Bookmark favourite tag searches into a dedicated sidebar view with real-time badges and quick execution.
+- **Search History**: Sidebar list displays recent queries with one-click reload and history clearing, complete with a draggable height resize handle.
+- **Saved Searches**: Bookmark favourite tag searches into a dedicated sidebar view with real-time badges, post previews, and quick execution.
 - **Integrated Sorting**: Built-in dropdown menu with clear direction indicators:
   - Default (Newest ID first) / Oldest ID first
   - Date created (Newest first) / Date created (Oldest first)
@@ -33,7 +29,7 @@
   - **Gender filter**: Customise results via the sidebar (`All`, `Male` [-female], or `Female` [-male]).
   - **Rating filter**: Restrict content across searches (`Safe`, `Questionable`, `Explicit`).
 - **Responsive Thumbnail Grid**:
-  - Dynamic `UniformGridLayout` with `ItemsStretch="Fill"` evenly distributes cards across window sizes.
+  - Dynamic responsive grid evenly distributes cards across window sizes.
   - Thumbnail badges indicate format (`Video`, `GIF`, `Image`), parent/child variations, and comic series/pool memberships.
 
 ### 🖼️ Media Viewing, Playback & Offline Cache
@@ -43,12 +39,11 @@
   - Responsive sample view automatically resizing to fit the window during resize events.
   - Floating **Fit to view** / **Actual size** toggle for full-resolution view.
 - **Native Video & GIF Playback**:
-  - Native `MediaPlayerElement` playback for `webm` and `mp4` videos with custom transport controls docked at the bottom of the viewing pane.
-  - Continuous background streaming and caching to disk while playing or paused.
-  - Animated GIF rendering using `BitmapImage` with viewport-constrained sizing that maintains active frame loops.
-  - Seamless tab switching: Pauses playback on switch, maintains playback position and buffer state, and restores responsive transport controls on return.
+  - High-performance `media_kit` video playback for `webm` and `mp4` videos with custom transport controls docked at the bottom of the viewing pane.
+  - Looping enabled by default for short video loops and webms.
+  - Animated GIF rendering with viewport-constrained sizing that maintains active frame loops.
 - **Offline Sample Image Cache**:
-  - Automatically caches sample previews locally for seamless browsing.
+  - Automatically caches sample previews locally in `~/.View621/cache/images` for seamless browsing.
   - If a post was previously viewed, it loads instantly from offline storage even without an active internet connection.
 - **Navigation & Relations**:
   - Sequential `« Prev` and `Next »` post navigation with keyboard arrow shortcuts (`←` / `→`).
@@ -57,7 +52,7 @@
 
 ### ⭐ Account Integration & Favourites
 - **Windows DPAPI Credential Security**:
-  - Account API keys are encrypted at rest using native Windows Data Protection API (`CryptProtectData`/`CryptUnprotectData` via `crypt32.dll`).
+  - Account API keys are encrypted at rest using native Windows Data Protection API (`CryptProtectData`/`CryptUnprotectData` via `crypt32.dll` and `dart:ffi`).
   - Plain-text credentials are never stored on disk.
 - **In-App Login Verification**:
   - Direct credential test button in Settings with live validation against e621.
@@ -91,13 +86,12 @@ All application data is cleanly isolated in `~/.View621` (`C:\Users\<User>\.View
 
 ## Technical Stack & Architecture
 
-- **Framework**: Windows App SDK (WinUI 3)
-- **Runtime**: .NET 10 (`net10.0-windows10.0.26100.0`)
-- **Package Style**: Unpackaged application (`<WindowsPackageType>None</WindowsPackageType>`)
-- **Single-File Architecture**: Self-contained standalone executable with native library self-extraction (`<PublishSingleFile>true</PublishSingleFile>`)
-- **Styling**: Windows 11 Fluent Design System with Mica and Desktop Acrylic backdrops
-- **Architectural Pattern**: MVVM using CommunityToolkit MVVM (`ObservableObject`, `RelayCommand`, service abstractions)
-- **Security**: Native Windows DPAPI (`crypt32.dll`) P/Invoke
+- **Framework**: Flutter Desktop for Windows
+- **Design System**: `fluent_ui` (reproducing the Windows 11 WinUI 3 experience)
+- **Window Management**: `window_manager`
+- **Media Engine**: `media_kit` & `media_kit_video`
+- **Architectural Pattern**: MVVM using `ChangeNotifier` and `Provider`
+- **Security**: Native Windows DPAPI (`crypt32.dll`) via `dart:ffi`
 
 ---
 
@@ -105,90 +99,86 @@ All application data is cleanly isolated in `~/.View621` (`C:\Users\<User>\.View
 
 ### Prerequisites
 1. **Windows 10 (version 1809+) or Windows 11**
-2. **.NET 10 SDK** (or later)
+2. **Flutter SDK** (3.47+ recommended)
+3. **Visual Studio 2022 / 2026** with C++ desktop development workload
 
 ### Development (Debug)
 From PowerShell in the repository root:
 
 ```powershell
-# Build the project
-dotnet build -c Debug
+# Get dependencies
+flutter pub get
 
 # Run the application
-dotnet run --no-build -c Debug
+flutter run -d windows
 ```
 
-### Self-Contained Standalone Single-File Publish
-To generate a single standalone `.exe` per architecture containing all runtimes and dependencies in a single file with zero external requirements:
+### Release Build
+To generate a standalone release build:
 
 ```powershell
-# For 64-bit Windows (outputs View621_x64.exe)
-dotnet publish View621.csproj -c Release -r win-x64 -p:Platform=x64 -o ./publish/x64
-
-# For ARM64 Windows (outputs View621_arm.exe)
-dotnet publish View621.csproj -c Release -r win-arm64 -p:Platform=ARM64 -o ./publish/arm64
+flutter build windows --release
 ```
 
-The compiled standalone executable files will be located at:
-- `publish\x64\View621_x64.exe`
-- `publish\arm64\View621_arm.exe`
+The compiled release executable and binaries will be located at:
+- `build\windows\x64\runner\Release\`
 
 ---
 
 ## Project Structure
 
 ```
-View621/
-├── .github/workflows/           # CI/CD workflows for building and publishing x64/ARM64 releases
+e6_viewer/
 ├── Assets/                      # Icons, logos, and splash screen graphics
-├── Helpers/
-│   ├── DpapiHelper.cs           # Native Windows DPAPI encryption/decryption (crypt32.dll)
-│   └── WindowChromeHelper.cs    # Windows 11 title bar styling, backdrops, and theme synchronization
-├── Models/
-│   ├── E621Dto.cs               # Strongly-typed JSON DTOs for e621 API responses
-│   ├── ImagePost.cs             # Post domain model with computed bindings and format detection
-│   ├── PostNavigationContext.cs # Carries sequential navigation state across tabs
-│   └── SavedSearchEntry.cs      # Saved search query persistence model
-├── Properties/
-│   ├── PublishProfiles/         # Profiles for win-x64 and win-arm64 single-file publishing
-│   └── launchSettings.json      # Debug configuration
-├── Services/
-│   ├── AppSettings.cs           # Settings persistence manager with DPAPI encryption
-│   ├── BookmarkService.cs       # Pinned posts catalogue manager
-│   ├── E621ApiClient.cs         # Async REST client for posts, pools, tags, voting, and favourites
-│   ├── FavoritesService.cs      # Real-time account favourites tracking and badge synchronization
-│   ├── IImageService.cs         # Service contract for API interactions
-│   ├── ISavedSearchesService.cs # Contract for saved search query operations
-│   ├── ITabService.cs           # Multi-tab broker contract
-│   ├── ImageCacheService.cs     # Disk caching for post media
-│   ├── PostCacheService.cs      # Metadata caching for offline queries
-│   ├── SavedSearchesService.cs  # Saved searches storage and management
-│   ├── SearchCacheService.cs    # In-memory and persisted search result cache
-│   ├── SearchHistoryService.cs  # Recent search terms persistence manager
-│   ├── StorageLocations.cs      # Centralised paths, directory helpers, and logging (~/.View621)
-│   ├── TabService.cs            # Coordinates tabs and navigation across views
-│   └── ThemeService.cs          # Theme and window backdrop helper
-├── ViewModels/
-│   ├── PinViewModel.cs          # Pinned posts management and collection filtering
-│   ├── PostViewModel.cs         # Post detail view model
-│   ├── SavedSearchesViewModel.cs# Saved searches view model
-│   └── SearchViewModel.cs       # Search view model managing queries, pagination, and tags
-├── Views/
-│   ├── AboutView.xaml(.cs)      # Application information, version, and links
-│   ├── FavouritesView.xaml(.cs) # Live e621 account favourited posts grid
-│   ├── PinView.xaml(.cs)        # Locally pinned posts viewer and manager
-│   ├── PostView.xaml(.cs)       # Pan/zoom viewer, video playback, voting, tags, and relations
-│   ├── SavedSearchesView.xaml(.cs) # Saved search queries management view
-│   ├── SearchView.xaml(.cs)     # Main post grid, tag bar, sort selector, and filter chips
-│   └── SettingsView.xaml(.cs)   # Theme, backdrop, DPAPI credentials, and data location launcher
-├── MainWindow.xaml(.cs)         # Root window hosting TitleBar, TabView, and navigation pane
-├── App.xaml(.cs)                # Application entry point, first-run initialization, and exception handlers
-├── app.manifest                 # Windows application manifest (DPI awareness, OS compatibility)
-└── View621.csproj               # Project and single-file build configuration
+├── lib/
+│   ├── helpers/
+│   │   └── dpapi_helper.dart    # Native Windows DPAPI encryption via dart:ffi
+│   ├── models/
+│   │   ├── e621_dto.dart        # Strongly-typed JSON DTOs for e621 API responses
+│   │   ├── image_post.dart      # Post domain model with computed bindings
+│   │   ├── post_navigation_context.dart # Navigation context across tabs
+│   │   └── saved_search_entry.dart # Saved search persistence model
+│   ├── services/
+│   │   ├── app_settings.dart    # Settings manager with DPAPI encryption
+│   │   ├── bookmark_service.dart# Pinned posts manager
+│   │   ├── e621_api_client.dart # Async REST client for posts, pools, tags, and votes
+│   │   ├── favorites_service.dart# Account favourites badge and synchronisation
+│   │   ├── image_cache_service.dart # Local disk caching for post media
+│   │   ├── post_cache_service.dart  # Metadata caching for offline queries
+│   │   ├── saved_searches_service.dart # Saved searches storage
+│   │   ├── search_history_service.dart # Search history manager
+│   │   ├── storage_locations.dart # Centralised ~/.View621 directories and logging
+│   │   └── tab_service.dart     # Multi-tab broker and navigation controller
+│   ├── viewmodels/
+│   │   ├── favourites_viewmodel.dart # Favourites view model
+│   │   ├── main_viewmodel.dart  # Root navigation, tabs, and sidebar badges
+│   │   ├── pin_viewmodel.dart   # Pinned posts view model
+│   │   ├── post_viewmodel.dart  # Post detail view model
+│   │   ├── saved_searches_viewmodel.dart # Saved searches view model
+│   │   └── search_viewmodel.dart# Search view model managing queries and filters
+│   ├── views/
+│   │   ├── about_view.dart      # About page with user manual and guide
+│   │   ├── favourites_view.dart # Account favourites grid view
+│   │   ├── main_view.dart       # NavigationView, titlebar, TabView, and sidebar
+│   │   ├── pin_view.dart        # Locally pinned posts gallery view
+│   │   ├── post_view.dart       # Pan/zoom viewer, video playback, and metadata
+│   │   ├── saved_searches_view.dart # Saved searches manager view
+│   │   └── settings_view.dart   # Preferences, credentials, and data location
+│   ├── widgets/
+│   │   ├── app_title_bar.dart   # Windows caption controls and drag region
+│   │   ├── post_card.dart       # Post card with preview, badges, and context menu
+│   │   └── video_player_widget.dart # Hardware-accelerated media player
+│   └── main.dart                # Application entry point and Fluent theme setup
+├── test/
+│   ├── dpapi_test.dart          # Windows DPAPI encryption/decryption verification
+│   └── widget_test.dart         # Unit tests for models and storage locations
+├── windows/                     # Native Windows C++ desktop runner and CMake build
+├── pubspec.yaml                 # Flutter package specification and dependencies
+└── README.md                    # Documentation
 ```
 
 ---
 
-## License
+## Licence
 
-This project is open-source under the MIT License.
+This project is open-source under the MIT Licence.

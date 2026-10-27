@@ -1,4 +1,12 @@
-## .NET / Visual Studio
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+windows/flutter/ephemeral/
+
+## .NET / Visual Studio legacy
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
@@ -22,22 +30,6 @@ artifacts/
 *.coverage
 *.coveragexml
 
-# NuGet
-*.nupkg
-*.snupkg
-*.nuget.props
-*.nuget.targets
-project.lock.json
-
-# MSIX packaging output
-AppPackages/
-BundleArtifacts/
-*.msix
-*.msixupload
-*.appx
-*.appxbundle
-*.appxupload
-
 # Publish output
 publish/
 *.pubxml
@@ -47,8 +39,5 @@ PublishScripts/
 _ReSharper*/
 *.DotSettings.user
 *.dotCover
+*.iml
 .idea/
-
-# Generated files
-Generated\ Files/
-*_wpftmp.csproj
